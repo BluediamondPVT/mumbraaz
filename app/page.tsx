@@ -1,65 +1,77 @@
-import Image from "next/image";
+import Link from "next/link";
+import { Search, MapPin, LayoutGrid } from "lucide-react";
+import connectToDatabase from "@/lib/db";
+import { Category } from "@/lib/models/Category";
 
-export default function Home() {
+export default async function HomePage() {
+  // 1. Database se direct connection aur data fetch
+  await connectToDatabase();
+  // Sirf wo categories laao jo active hain, aur naye wale pehle dikhao
+  const categories = await Category.find({ isActive: true }).sort({ createdAt: -1 });
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="min-h-screen bg-white">
+      
+      {/* HEADER / HERO SECTION */}
+      <section className="relative bg-gradient-to-r from-blue-600 to-indigo-700 py-20 px-4 sm:px-6 lg:px-8 text-center text-white">
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">
+            Apne Shahar Ka Best Dhoondho!
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="text-lg md:text-xl text-blue-100 mb-8">
+            Dhaba ho ya Hospital, sab kuch milega yahan. Explore the best local businesses.
           </p>
+
+          {/* SEARCH BAR */}
+          <div className="bg-white p-2 rounded-full shadow-lg flex flex-col sm:flex-row items-center max-w-3xl mx-auto gap-2">
+            <div className="flex items-center w-full px-4 py-2 text-gray-700 border-b sm:border-b-0 sm:border-r border-gray-200">
+              <MapPin className="w-5 h-5 text-gray-400 mr-2" />
+              <input 
+                type="text" 
+                placeholder="City ya Area" 
+                className="w-full focus:outline-none bg-transparent"
+              />
+            </div>
+            <div className="flex items-center w-full px-4 py-2 text-gray-700">
+              <Search className="w-5 h-5 text-gray-400 mr-2" />
+              <input 
+                type="text" 
+                placeholder="Kya dhoondh rahe ho?" 
+                className="w-full focus:outline-none bg-transparent"
+              />
+            </div>
+            <button className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full font-semibold transition-all">
+              Search
+            </button>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </section>
+
+      {/* DYNAMIC CATEGORIES GRID */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-8 text-center">
+          Explore Categories
+        </h2>
+        
+        {categories.length === 0 ? (
+          <p className="text-center text-gray-500">Koi category nahi mili. Admin panel se add karein.</p>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+            {categories.map((cat) => (
+              <Link href={`/${cat.slug}`} key={cat._id.toString()} className="group flex flex-col items-center">
+                <div className="w-20 h-20 rounded-2xl flex items-center justify-center bg-blue-50 text-blue-600 transition-transform group-hover:scale-110 shadow-sm group-hover:shadow-md border border-blue-100">
+                  {/* Abhi ke liye common icon lagaya hai, baad me images aayengi */}
+                  <LayoutGrid className="w-8 h-8" />
+                </div>
+                <span className="mt-3 text-sm font-semibold text-gray-700 group-hover:text-blue-600 transition-colors capitalize">
+                  {cat.name}
+                </span>
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
+
     </div>
   );
 }
