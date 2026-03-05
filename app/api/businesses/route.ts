@@ -2,6 +2,17 @@ import { NextResponse } from "next/server";
 import connectToDatabase from "@/lib/db";
 import { Business } from "@/lib/models/Business";
 
+export async function GET() {
+  try {
+    await connectToDatabase();
+    const businesses = await Business.find({}).populate('category').sort({ createdAt: -1 }).lean();
+    return NextResponse.json(businesses, { status: 200 });
+  } catch (error) {
+    console.error("Businesses Fetch Error:", error);
+    return NextResponse.json({ error: "Failed to fetch businesses" }, { status: 500 });
+  }
+}
+
 export async function POST(req: Request) {
   try {
     await connectToDatabase();

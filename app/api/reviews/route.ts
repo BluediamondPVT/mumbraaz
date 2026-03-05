@@ -5,6 +5,21 @@ import { Business } from "@/lib/models/Business";
 import { User } from "@/lib/models/User";
 import { currentUser } from "@clerk/nextjs/server";
 
+export async function GET() {
+  try {
+    await connectToDatabase();
+    const reviews = await Review.find({})
+      .populate('user', 'name email')
+      .populate('business', 'name')
+      .sort({ createdAt: -1 })
+      .lean();
+    return NextResponse.json(reviews, { status: 200 });
+  } catch (error) {
+    console.error("Reviews Fetch Error:", error);
+    return NextResponse.json({ error: "Failed to fetch reviews" }, { status: 500 });
+  }
+}
+
 export async function POST(req: Request) {
   try {
     // 1. Check karo ki user logged in hai ya nahi
