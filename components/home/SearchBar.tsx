@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { Search, MapPin, Loader2, LayoutGrid, Store } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import toast from "react-hot-toast";
 
 export default function SearchBar() {
   const [location, setLocation] = useState("");
