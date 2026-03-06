@@ -1,114 +1,157 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { MapPin, Phone, Star, MessageCircle } from "lucide-react";
+import { MapPin, Phone, Star, MessageCircle, Navigation } from "lucide-react";
 import connectToDatabase from "@/lib/db";
 import { Category } from "@/lib/models/Category";
 import { Business } from "@/lib/models/Business";
+import CategorySidebar from "@/components/category/CategorySidebar"; // 🔥 Naya Sidebar Import kiya
 
 export default async function CategoryListingPage({
   params,
+  searchParams, // 🔥 Next.js feature: URL ke filters padhne ke liye
 }: {
-  params: Promise<{ categorySlug: string }>; // 1. Yahan Promise add kiya
+  params: Promise<{ categorySlug: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  // 2. Yahan params ko await kiya
   const resolvedParams = await params;
   const slug = resolvedParams.categorySlug;
+  
+  // URL se city filter nikal rahe hain (e.g. ?city=Thane,Mumbra)
+  const resolvedSearchParams = await searchParams;
+  const cityFilter = resolvedSearchParams.city as string;
 
   await connectToDatabase();
 
-  // 3. Database me check karo ki kya aisi koi category hai?
+  // 1. Current category dhoondo
   const category = await Category.findOne({ slug: slug, isActive: true });
-
   if (!category) {
-    notFound(); // Agar koi aaltu-faltu URL daale toh 404 page dikhao
+    notFound(); 
   }
 
-  // 4. Us category ki saari approved dukaane (businesses) le aao
-  const businesses = await Business.find({ 
-    category: category._id,
-    status: "approved" 
-  }).sort({ createdAt: -1 });
+  // 2. Sidebar ke liye saari categories laao
+  const allCategories = await Category.find({ isActive: true }).select("name slug").sort({ name: 1 });
+
+  // 3. Filter Query Banao
+  const query: any = { category: category._id, status: "approved" };
+  if (cityFilter) {
+    // Agar URL me city hai, toh usko array me convert karke filter lagao
+    const citiesArray = cityFilter.split(",");
+    query["location.city"] = { $in: citiesArray.map(c => new RegExp(`^${c}$`, 'i')) };
+  }
+
+  // 4. Businesses fetch karo (filtered)
+  const businesses = await Business.find(query).sort({ createdAt: -1 });
+
+  // 5. Sidebar checkbox ke liye unique cities nikalo is category ki dukaano me se
+ const uniqueCities = await Business.distinct("location.city", { status: "approved" });
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-16">
+    <div className="min-h-screen bg-slate-50 pb-16">
       
-      {/* Header Section */}
-      <div className="bg-blue-600 text-white py-12 px-4 sm:px-6 lg:px-8">
+      {/* Header Section (Premium Gradient) */}
+      <div className="bg-gradient-to-r from-[#0a2342] to-[#1a365d] text-white py-14 px-4 sm:px-6 lg:px-8 shadow-inner">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl md:text-4xl font-bold capitalize">
-            Best {category.name} in Town
+          <h1 className="text-3xl md:text-5xl font-extrabold capitalize tracking-tight flex items-center gap-3">
+            Best {category.name} <span className="text-[#e72b4c]">Services</span>
           </h1>
-          <p className="mt-2 text-blue-100">
-            {businesses.length} {businesses.length === 1 ? 'result' : 'results'} found
+          <p className="mt-3 text-slate-300 text-lg font-medium">
+            Showing {businesses.length} {businesses.length === 1 ? 'result' : 'results'}
+            {cityFilter && ` in ${cityFilter.replace(/,/g, " & ")}`}
           </p>
         </div>
       </div>
 
-      {/* Listing Grid */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
-        {businesses.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-xl shadow-sm border border-gray-200">
-            <h3 className="text-xl font-medium text-gray-900">Abhi yahan koi listing nahi hai.</h3>
-            {/* <p className="text-gray-500 mt-2">Admin panel se is category mein naye businesses add karein.</p> */}
+      {/* Main Layout Grid (Left Sidebar + Right Content) */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          
+          {/* 🔥 LEFT SIDEBAR 🔥 */}
+          <div className="lg:col-span-1">
+            <CategorySidebar 
+              categories={JSON.parse(JSON.stringify(allCategories))} 
+              currentCategorySlug={slug}
+              availableCities={uniqueCities}
+            />
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {businesses.map((biz) => (
-              <div key={biz._id.toString()} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow flex flex-col">
-                
-                {/* Image Placeholder */}
-                <div className="h-48 bg-gray-200 w-full overflow-hidden">
-                  <img 
-                    src={biz.media?.thumbnail || "https://placehold.co/600x400/png"} 
-                    alt={biz.name}
-                    className="w-full h-full object-cover"
-                  />
+
+          {/* 🔥 RIGHT CONTENT (Horizontal Cards) 🔥 */}
+          <div className="lg:col-span-3">
+            {businesses.length === 0 ? (
+              <div className="text-center py-20 bg-white rounded-2xl shadow-sm border border-gray-100">
+                <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <MapPin className="w-8 h-8 text-gray-300" />
                 </div>
-
-                {/* Content */}
-                <div className="p-5 flex-1 flex flex-col">
-                  <div className="flex justify-between items-start">
-                    <h3 className="text-xl font-bold text-gray-900 line-clamp-1">{biz.name}</h3>
-                    <div className="flex items-center bg-green-100 text-green-700 px-2 py-1 rounded text-sm font-bold">
-                      <Star className="w-4 h-4 mr-1 fill-current" />
-                      {biz.averageRating || "New"}
-                    </div>
-                  </div>
-
-                  <p className="text-gray-500 text-sm mt-1 flex items-center line-clamp-1">
-                    <MapPin className="w-4 h-4 mr-1 flex-shrink-0" />
-                    {biz.location?.address}, {biz.location?.city}
-                  </p>
-
-                  <p className="text-gray-600 text-sm mt-3 line-clamp-2 flex-1">
-                    {biz.description}
-                  </p>
-
-                  {/* Action Buttons */}
-                  <div className="mt-5 pt-4 border-t border-gray-100 flex gap-3">
-                    <Link 
-                      href={`/${slug}/${biz.slug}`} 
-                      className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 text-center py-2 rounded-lg font-medium transition-colors"
-                    >
-                      View Details
-                    </Link>
-                    <a 
-                      href={`https://wa.me/${biz.contact?.whatsapp}`} 
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center bg-green-500 hover:bg-green-600 text-white p-2 rounded-lg transition-colors w-12"
-                    >
-                      <MessageCircle className="w-5 h-5" />
-                    </a>
-                  </div>
-                </div>
-
+                <h3 className="text-xl font-bold text-gray-900">Koi Listing Nahi Mili</h3>
+                <p className="text-gray-500 mt-2">Kripya koi dusri city select karein ya filters hatayein.</p>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+            ) : (
+              <div className="space-y-6"> {/* Horizontal cards ke liye flex-col ke bajaye space-y diya hai */}
+                {businesses.map((biz) => (
+                  <div 
+                    key={biz._id.toString()} 
+                    className="group bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col sm:flex-row"
+                  >
+                    {/* Left: Image Box */}
+                    <div className="sm:w-64 md:w-72 h-56 sm:h-auto shrink-0 relative bg-gray-100 overflow-hidden">
+                      <img 
+                        src={biz.media?.thumbnail || "https://placehold.co/600x400/png"} 
+                        alt={biz.name}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-yellow-600 text-xs font-bold px-2.5 py-1.5 rounded-lg flex items-center gap-1 shadow-sm">
+                        <Star className="w-3.5 h-3.5 fill-current" />
+                        {biz.averageRating || "New"}
+                      </div>
+                    </div>
 
+                    {/* Right: Content Box */}
+                    <div className="p-6 flex-1 flex flex-col justify-between">
+                      <div>
+                        <div className="flex justify-between items-start gap-4">
+                          <h3 className="text-2xl font-bold text-gray-900 line-clamp-1 group-hover:text-blue-600 transition-colors">
+                            {biz.name}
+                          </h3>
+                        </div>
+
+                        <p className="text-gray-500 text-sm mt-2 flex items-center font-medium">
+                          <MapPin className="w-4 h-4 mr-1.5 text-red-500" />
+                          {biz.location?.address}, <span className="text-gray-800 ml-1">{biz.location?.city}</span>
+                        </p>
+
+                        <p className="text-gray-600 text-sm mt-4 line-clamp-2 leading-relaxed">
+                          {biz.description}
+                        </p>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="mt-6 pt-5 border-t border-gray-50 flex flex-wrap sm:flex-nowrap gap-3">
+                        <Link 
+                          href={`/${slug}/${biz.slug}`} 
+                          className="flex-1 bg-blue-50 hover:bg-blue-600 hover:text-white text-blue-700 text-center py-2.5 rounded-xl font-bold transition-all"
+                        >
+                          View Details
+                        </Link>
+                        
+                        <a 
+                          href={`https://wa.me/${biz.contact?.whatsapp}`} 
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1DA851] text-white px-5 py-2.5 rounded-xl font-bold transition-colors"
+                        >
+                          <MessageCircle className="w-5 h-5" />
+                          <span className="hidden sm:inline">WhatsApp</span>
+                        </a>
+                      </div>
+                    </div>
+
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+        </div>
+      </div>
     </div>
   );
 }
