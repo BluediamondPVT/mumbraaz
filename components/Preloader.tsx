@@ -4,27 +4,34 @@ import { useState, useEffect } from "react";
 
 export default function Preloader() {
   const [isLoading, setIsLoading] = useState(true);
+  const [isRevealing, setIsRevealing] = useState(false);
+
+  // Define the number of "stairs" (columns) for the dramatic reveal
+  const columns = 5;
 
   useEffect(() => {
-    // Hide preloader after page content is loaded
-    const handleLoad = () => {
-      setIsLoading(false);
+    const triggerReveal = () => {
+      // Step 1: Trigger the staircase exit animation
+      setIsRevealing(true);
+
+      // Step 2: Unmount the component entirely after animations finish
+      // 300ms (fade) + 700ms (slide) + (4 * 100ms delay) = ~1400ms total
+      setTimeout(() => setIsLoading(false), 1500);
     };
 
-    // Check if page is already loaded
     if (document.readyState === "complete") {
-      handleLoad();
+      triggerReveal();
     } else {
-      window.addEventListener("load", handleLoad);
+      window.addEventListener("load", triggerReveal);
     }
 
-    // Fallback: hide after 2 seconds anyway
+    // Fallback: trigger reveal after 2.5 seconds anyway
     const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
+      triggerReveal();
+    }, 2500);
 
     return () => {
-      window.removeEventListener("load", handleLoad);
+      window.removeEventListener("load", triggerReveal);
       clearTimeout(timer);
     };
   }, []);
@@ -32,78 +39,45 @@ export default function Preloader() {
   if (!isLoading) return null;
 
   return (
-    <div className="preloader">
-      <div className="preloader-content">
-        <div className="spinner"></div>
-        <div className="logo-text">Mumbraaz</div>
+    <div className="fixed inset-0 z-[9999] pointer-events-none w-screen h-screen flex">
+      {/* The "Stairs" Background
+        Creates 5 vertical columns that slide up sequentially
+      */}
+      {Array.from({ length: columns }).map((_, i) => (
+        <div
+          key={i}
+          className={`h-full flex-1 bg-zinc-950 transition-transform duration-[800ms] ease-[cubic-bezier(0.76,0,0.24,1)] ${
+            isRevealing ? "-translate-y-full" : "translate-y-0"
+          }`}
+          style={{ transitionDelay: `${i * 100}ms` }}
+        />
+      ))}
+
+      {/* Center Content (Logo & Geometric Loader)
+        Fades out before the stairs open
+      */}
+      <div
+        className={`absolute inset-0 flex flex-col items-center justify-center gap-8 transition-opacity duration-300 ease-in-out ${
+          isRevealing ? "opacity-0" : "opacity-100"
+        }`}
+      >
+        {/* Geometric Staircase Loader Indicator */}
+        <div className="flex items-end gap-2 h-12">
+          <div className="w-3 bg-white animate-[bounce_1s_infinite_0ms]"></div>
+          <div className="w-3 bg-white animate-[bounce_1s_infinite_100ms] h-3/4"></div>
+          <div className="w-3 bg-white animate-[bounce_1s_infinite_200ms] h-2/4"></div>
+          <div className="w-3 bg-white animate-[bounce_1s_infinite_300ms] h-1/4"></div>
+        </div>
+
+        {/* Logo Text */}
+        <div className="overflow-hidden">
+          <h1 className="text-4xl font-extrabold text-white tracking-[0.2em] uppercase relative">
+            Mumbra <span className="text-zinc-500 font-light">BiZ</span>
+            {/* Subtle light sweep effect over the text */}
+            <span className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-[shimmer_2s_infinite]"></span>
+          </h1>
+        </div>
       </div>
-      <style jsx>{`
-        .preloader {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 9999;
-          animation: fadeIn 0.3s ease-in-out;
-        }
-
-        .preloader-content {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 20px;
-        }
-
-        .spinner {
-          width: 50px;
-          height: 50px;
-          border: 4px solid rgba(255, 255, 255, 0.3);
-          border-top: 4px solid #fff;
-          border-radius: 50%;
-          animation: spin 1s linear infinite;
-        }
-
-        .logo-text {
-          font-size: 28px;
-          font-weight: 700;
-          color: #fff;
-          letter-spacing: 2px;
-          animation: pulse 1.5s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-          0% {
-            transform: rotate(0deg);
-          }
-          100% {
-            transform: rotate(360deg);
-          }
-        }
-
-        @keyframes pulse {
-          0%, 100% {
-            opacity: 1;
-          }
-          50% {
-            opacity: 0.6;
-          }
-        }
-
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
-      `}</style>
     </div>
   );
 }
-
