@@ -2,13 +2,16 @@
 
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
-import { Store, Loader2, ImagePlus } from "lucide-react";
-import { CldUploadWidget } from "next-cloudinary"; // Cloudinary Widget import kiya
+import { Store, Loader2, ImagePlus, X } from "lucide-react";
+import { CldUploadWidget } from "next-cloudinary";
 
 export default function BusinessForm() {
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [thumbnailUrl, setThumbnailUrl] = useState(""); // Image URL store karne ke liye
+  
+  // Image States
+  const [thumbnailUrl, setThumbnailUrl] = useState(""); 
+  const [galleryUrls, setGalleryUrls] = useState<string[]>([]); // Multiple images ke liye state
 
   const [formData, setFormData] = useState({
     name: "", description: "", categoryId: "", phone: "", whatsapp: "", address: "", city: "Thane", pincode: "",
@@ -27,9 +30,8 @@ export default function BusinessForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Agar image upload nahi ki hai, toh warning do
     if (!thumbnailUrl) {
-      toast.error("Bhai, ek photo toh upload karni padegi!");
+      toast.error("Bhai, ek Cover Photo toh upload karni padegi!");
       return;
     }
 
@@ -39,16 +41,18 @@ export default function BusinessForm() {
       const res = await fetch("/api/businesses", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        // thumbnail ka data bhi sath bhej rahe hain
-        body: JSON.stringify({ ...formData, thumbnail: thumbnailUrl }),
+        // thumbnail aur gallery dono ka data sath bhej rahe hain
+        body: JSON.stringify({ ...formData, thumbnail: thumbnailUrl, gallery: galleryUrls }),
       });
 
       const data = await res.json();
 
       if (res.ok) {
         toast.success(data.message);
+        // Form Reset
         setFormData({ name: "", description: "", categoryId: "", phone: "", whatsapp: "", address: "", city: "Thane", pincode: "" });
-        setThumbnailUrl(""); // Image clear kar di
+        setThumbnailUrl(""); 
+        setGalleryUrls([]); // Gallery bhi clear kardo
       } else {
         toast.error(data.error);
       }
@@ -66,42 +70,84 @@ export default function BusinessForm() {
         Add New Business
       </h2>
 
-      {/* 📸 Image Upload Section (Cloudinary) */}
-      <div className="mb-8 p-6 border-2 border-dashed border-gray-300 rounded-xl bg-gray-50 flex flex-col items-center justify-center">
-        {thumbnailUrl ? (
-          <div className="relative w-full max-w-sm h-48 rounded-lg overflow-hidden shadow-md">
-            <img src={thumbnailUrl} alt="Uploaded" className="w-full h-full object-cover" />
-            <button 
-              type="button" 
-              onClick={() => setThumbnailUrl("")} 
-              className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-md text-xs font-bold"
-            >
-              Change
-            </button>
-          </div>
-        ) : (
-         <CldUploadWidget 
-  uploadPreset="ml_default" // <--- Yahan 'ml_default' likhna hai
-  onSuccess={(result: any) => {
-    setThumbnailUrl(result.info.secure_url);
-    toast.success("Image Uploaded!");
-  }}
->
-            {({ open }) => (
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        {/* 📸 COVER Image Upload Section */}
+        <div className="p-6 border-2 border-dashed border-gray-300 rounded-xl bg-gray-50 flex flex-col items-center justify-center">
+          <h3 className="font-semibold text-gray-700 mb-4 w-full text-center">Cover Photo (Main Image)</h3>
+          {thumbnailUrl ? (
+            <div className="relative w-full max-w-sm h-48 rounded-lg overflow-hidden shadow-md">
+              <img src={thumbnailUrl} alt="Cover" className="w-full h-full object-cover" />
               <button 
                 type="button" 
-                onClick={() => open()} 
-                className="flex flex-col items-center gap-2 text-gray-500 hover:text-blue-600 transition-colors"
+                onClick={() => setThumbnailUrl("")} 
+                className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white p-1.5 rounded-md text-xs font-bold transition-colors"
               >
-                <ImagePlus className="w-10 h-10" />
-                <span className="font-medium">Click to Upload Cover Image</span>
+                Change
               </button>
+            </div>
+          ) : (
+            <CldUploadWidget 
+              uploadPreset="ml_default" 
+              onSuccess={(result: any) => {
+                setThumbnailUrl(result.info.secure_url);
+                toast.success("Cover Image Uploaded!");
+              }}
+            >
+              {({ open }) => (
+                <button type="button" onClick={() => open()} className="flex flex-col items-center gap-2 text-gray-500 hover:text-blue-600 transition-colors py-8">
+                  <ImagePlus className="w-10 h-10" />
+                  <span className="font-medium">Click to Upload Cover</span>
+                </button>
+              )}
+            </CldUploadWidget>
+          )}
+        </div>
+
+        {/* 📸 GALLERY Images Upload Section */}
+        <div className="p-6 border-2 border-dashed border-gray-300 rounded-xl bg-gray-50">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="font-semibold text-gray-700">Gallery / Menu Photos</h3>
+            <CldUploadWidget 
+              uploadPreset="ml_default" 
+              options={{ multiple: true }} // Allow multiple image selection
+              onSuccess={(result: any) => {
+                setGalleryUrls((prev) => [...prev, result.info.secure_url]);
+                toast.success("Added to Gallery!");
+              }}
+            >
+              {({ open }) => (
+                <button type="button" onClick={() => open()} className="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1.5 rounded-md text-sm font-bold flex items-center gap-1.5 transition-colors">
+                  <ImagePlus className="w-4 h-4" />
+                  Add Photos
+                </button>
+              )}
+            </CldUploadWidget>
+          </div>
+
+          {/* Gallery Preview Grid */}
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+            {galleryUrls.map((url, index) => (
+              <div key={index} className="relative aspect-square rounded-lg overflow-hidden shadow-sm border border-gray-200 group">
+                <img src={url} alt={`Gallery ${index}`} className="w-full h-full object-cover" />
+                <button 
+                  type="button" 
+                  onClick={() => setGalleryUrls(galleryUrls.filter((_, i) => i !== index))} 
+                  className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            ))}
+            {galleryUrls.length === 0 && (
+              <div className="col-span-full text-center text-gray-400 text-sm py-8">
+                No gallery images added yet.
+              </div>
             )}
-          </CldUploadWidget>
-        )}
+          </div>
+        </div>
       </div>
 
-      {/* Baaki ka Form same hai */}
+      {/* Baaki ka Text Form same hai */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Business Name</label>
