@@ -17,7 +17,7 @@ export default async function Navbar() {
               <MapPin className="w-5 h-5" />
             </div>
             <span className="text-2xl font-bold text-white tracking-tight">
-              City<span className="text-yellow-200">Directory</span>
+              Mumbra <span className="text-yellow-200">BiZ</span>
             </span>
           </Link>
 

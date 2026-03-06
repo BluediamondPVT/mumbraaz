@@ -23,6 +23,8 @@ export interface IBusiness extends Document {
     gallery: string[];
     videoUrl?: string;
   };
+
+  
   features: string[]; // e.g. ["AC", "Parking", "WiFi"]
   menuImages: string[];
   averageRating: number;

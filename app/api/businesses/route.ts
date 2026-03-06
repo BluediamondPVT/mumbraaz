@@ -40,6 +40,7 @@ export async function POST(req: Request) {
       media: {
         // Dummy image ki jagah ab frontend se aayi hui Cloudinary image aayegi!
         thumbnail: body.thumbnail, 
+        gallery: body.gallery || [], // Gallery ke liye bhi data aa raha hai
       },
       status: "approved", // Kyunki admin add kar raha hai toh direct live ho jayegi
     });
