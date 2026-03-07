@@ -25,7 +25,24 @@ async function CategoriesSection() {
   );
 
   return (
-    <div className="bg-white min-h-screen">
+
+    
+
+    <div className="bg-white min-h-screen p-4 sm:p-6 lg:p-8 ">
+      {/* Banner Image */}
+      <div className="w-full">
+        <img 
+          src="/banner.jpg" 
+          alt="Banner" 
+          className="w-full h-auto hidden sm:block  max-h-[400px] object-cover rounded-lg shadow-md"
+        />
+        <img 
+          src="/banner3.jpg" 
+          alt="Banner-2" 
+          className="w-full h-auto block sm:hidden  max-h-[400px] object-cover rounded-lg shadow-md"
+        />
+      </div>
+
       {/* Category Section */}
       <div className="py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
