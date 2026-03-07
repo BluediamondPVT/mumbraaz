@@ -1,4 +1,4 @@
-"use client"; // 🔥 Bas yeh ek line add karni thi!
+"use client"; 
 
 import Link from "next/link";
 

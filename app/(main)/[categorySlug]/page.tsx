@@ -123,20 +123,28 @@ export default async function CategoryListingPage({
                         </p>
                       </div>
 
-                      {/* Action Buttons */}
-                      <div className="mt-6 pt-5 border-t border-gray-50 flex flex-wrap sm:flex-nowrap gap-3">
+{/* Action Buttons */}
+                      <div className="mt-6 pt-5 border-t border-gray-100 flex flex-wrap sm:flex-nowrap gap-3">
                         <Link 
-                          href={`/${slug}/${biz.slug}`} 
-                          className="flex-1 bg-blue-50 hover:bg-blue-600 hover:text-white text-blue-700 text-center py-2.5 rounded-xl font-bold transition-all"
+                          href={`/${slug}/${biz.slug}`}
+                          className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-center py-3 px-4 rounded-xl font-semibold transition-all shadow-md hover:shadow-lg active:scale-[0.98]"
                         >
-                          View Details
+                          <span>View Details</span>
                         </Link>
+
+                        <a 
+                          href={`tel:${biz.contact?.phone}`} 
+                          className="flex items-center justify-center gap-2 bg-white border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-3 rounded-xl font-semibold transition-all shadow-sm hover:shadow-md"
+                        >
+                          <Phone className="w-5 h-5 text-gray-600" />
+                          <span className="hidden sm:inline">Call</span>
+                        </a>
                         
                         <a 
                           href={`https://wa.me/${biz.contact?.whatsapp}`} 
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1DA851] text-white px-5 py-2.5 rounded-xl font-bold transition-colors"
+                          className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1DA851] text-white px-4 py-3 rounded-xl font-semibold transition-all shadow-md hover:shadow-lg"
                         >
                           <MessageCircle className="w-5 h-5" />
                           <span className="hidden sm:inline">WhatsApp</span>
