@@ -1,9 +1,10 @@
 import { notFound } from "next/navigation";
-import { MapPin, Phone, Star, MessageCircle, Navigation, Info } from "lucide-react";
+import { MapPin, Phone, Star, MessageCircle, Navigation, Info, Store } from "lucide-react";
 import connectToDatabase from "@/lib/db";
 import { Business } from "@/lib/models/Business";
 import ReviewForm from "@/components/reviews/ReviewForm";
 import ImageSlider from "@/components/business/ImageSlider";
+import RelatedSlider from "@/components/business/RelatedSlider"; // 🔥 Naya Slider Import
 
 export default async function BusinessDetailPage({
   params,
@@ -15,6 +16,7 @@ export default async function BusinessDetailPage({
 
   await connectToDatabase();
 
+  // 1. Current Business Fetch Karo
   const business = await Business.findOne({ 
     slug: businessSlug, 
     status: "approved" 
@@ -23,6 +25,23 @@ export default async function BusinessDetailPage({
   if (!business) {
     notFound();
   }
+
+  // 🔥 2. RELATED BUSINESSES FETCH KARO 🔥
+  const relatedBusinessesRaw = await Business.find({
+    category: business.category,
+    _id: { $ne: business._id },
+    status: "approved"
+  }).limit(10); // Slider hai isliye zyada (10) manga rahe hain
+
+  // Client Component (Slider) mein pass karne ke liye Data ko plain format mein convert kiya
+  const relatedBusinesses = relatedBusinessesRaw.map(biz => ({
+    _id: biz._id.toString(),
+    slug: biz.slug,
+    name: biz.name,
+    averageRating: biz.averageRating,
+    media: { thumbnail: biz.media?.thumbnail },
+    location: { address: biz.location?.address, city: biz.location?.city }
+  }));
 
   // Cover image aur gallery images ko ek array mein combine karna
   const allImages = [business.media?.thumbnail || "https://placehold.co/1200x400/png?text=No+Image+Available"];
@@ -33,7 +52,7 @@ export default async function BusinessDetailPage({
   return (
     <div className="min-h-screen bg-gray-50 pb-16">
       
-      {/* 1. Naya Slider Cover Section */}
+      {/* 1. Slider Cover Section */}
       <ImageSlider 
         images={allImages} 
         name={business.name} 
@@ -41,7 +60,6 @@ export default async function BusinessDetailPage({
         state={business.location?.state} 
       />
 
-      {/* BAAKI KA POORA CODE SAME RAHEGA */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
@@ -91,6 +109,7 @@ export default async function BusinessDetailPage({
               )}
             </div>
 
+            {/* Review Form */}
             <ReviewForm businessId={business._id.toString()} />
 
           </div>
@@ -153,8 +172,11 @@ export default async function BusinessDetailPage({
             </div>
 
           </div>
-
         </div>
+
+        {/* 🔥 YAHAN APNA NAYA SLIDER COMPONENT CALL KIYA HAI 🔥 */}
+        <RelatedSlider businesses={relatedBusinesses} categorySlug={categorySlug} />
+
       </div>
     </div>
   );
