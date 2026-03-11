@@ -2,8 +2,33 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Search, MapPin, Loader2, LayoutGrid, Store } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+
+// 🔥 Option 1: TypeScript Interfaces (Type check ke liye)
+interface SearchCategory {
+  _id: string;
+  name: string;
+  slug: string;
+  iconUrl?: string;
+}
+
+interface SearchBusiness {
+  _id: string;
+  name: string;
+  slug: string;
+  category?: {
+    slug: string;
+  };
+  media?: {
+    thumbnail?: string;
+  };
+  location?: {
+    address?: string;
+    city?: string;
+  };
+}
 
 export default function NavSearchBar() {
   const [location, setLocation] = useState("");
@@ -56,7 +81,7 @@ export default function NavSearchBar() {
             type="text" 
             value={location}
             onChange={(e) => setLocation(e.target.value)}
-            onFocus={() => setShowDropdown(true)} // Yahan add kiya taaki click karte hi list khule
+            onFocus={() => setShowDropdown(true)} 
             placeholder="Select City / Area" 
             className="w-full bg-transparent focus:outline-none text-gray-700 text-sm"
           />
@@ -92,44 +117,54 @@ export default function NavSearchBar() {
                 {query ? "Categories" : "Trending"}
               </h4>
               <div className="flex flex-wrap gap-2">
-                {results.categories.map((cat: any) => (
-                  <Link 
-                    key={cat._id} 
-                    href={`/${cat.slug}`}
-                    onClick={() => setShowDropdown(false)}
-                    className="flex items-center gap-1.5 bg-white border border-gray-200 hover:border-red-400 hover:text-red-500 px-2.5 py-1 rounded-md text-xs font-medium text-gray-600 transition-colors"
-                  >
-                    {cat.iconUrl ? (
-                      <img src={cat.iconUrl} alt={cat.name} className="w-4 h-4 object-contain" />
-                    ) : (
-                      <span className="w-4 h-4 rounded-full bg-red-50 text-red-500 flex items-center justify-center text-[9px] font-bold">
-                        {cat.name.charAt(0)}
-                      </span>
-                    )}
-                    {cat.name}
-                  </Link>
+                {/* 🔥 Yahan cat: any ki jagah cat: SearchCategory lagaya 🔥 */}
+                {results.categories.map((cat: SearchCategory) => (
+                 <Link 
+                  key={cat._id} 
+                  href={`/${cat.slug}`}
+                  onClick={() => setShowDropdown(false)}
+                  className="flex items-center gap-1.5 bg-white border border-gray-200 hover:border-red-400 hover:text-red-500 px-2.5 py-1 rounded-md text-xs font-medium text-gray-600 transition-colors"
+                >
+                  {cat.iconUrl ? (
+                    <Image 
+                      src={cat.iconUrl} 
+                      alt={cat.name} 
+                      width={16} 
+                      height={16} 
+                      className="w-4 h-4 object-contain" 
+                    />
+                  ) : (
+                    <span className="w-4 h-4 rounded-full bg-red-50 text-red-500 flex items-center justify-center text-[9px] font-bold">
+                      {cat.name.charAt(0)}
+                    </span>
+                  )}
+                  {cat.name}
+                </Link>
                 ))}
               </div>
             </div>
           )}
 
-          {/* 🔥 Businesses Section (Ab location type karne pe bhi dikhega) 🔥 */}
+          {/* 🔥 Businesses Section 🔥 */}
           {(query || location) && results.businesses?.length > 0 && (
             <div className="py-1">
               <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mt-2 mb-1 px-4 flex items-center gap-1">
                 <Store className="w-3 h-3" /> Businesses
               </h4>
-              {results.businesses.map((biz: any) => (
+              {/* 🔥 Yahan biz: any ki jagah biz: SearchBusiness lagaya 🔥 */}
+              {results.businesses.map((biz: SearchBusiness) => (
                 <Link 
                   key={biz._id} 
                   href={`/${biz.category?.slug}/${biz.slug}`} 
                   onClick={() => setShowDropdown(false)}
                   className="flex items-center gap-3 px-4 py-2 hover:bg-red-50 transition-colors group"
                 >
-                  <img 
+                  <Image 
                     src={biz.media?.thumbnail || "https://placehold.co/100x100"} 
-                    className="w-10 h-10 rounded-md object-cover border border-gray-200 group-hover:border-red-300" 
                     alt={biz.name} 
+                    width={40} 
+                    height={40} 
+                    className="w-10 h-10 rounded-md object-cover border border-gray-200 group-hover:border-red-300" 
                   />
                   <div>
                     <p className="text-sm font-bold text-gray-900 group-hover:text-red-600 transition-colors">
@@ -145,10 +180,10 @@ export default function NavSearchBar() {
             </div>
           )}
 
-          {/* 🔥 Agar kuch na mile toh message 🔥 */}
+          {/* Agar kuch na mile toh message */}
           {(query || location) && results.categories?.length === 0 && results.businesses?.length === 0 && !isSearching && (
             <div className="p-6 text-center text-gray-500 text-sm">
-              <p>"{query || location}" ke liye koi result nahi mila 😢</p>
+              <p>{`"${query || location}" ke liye koi result nahi mila 😢`}</p>
             </div>
           )}
         </div>

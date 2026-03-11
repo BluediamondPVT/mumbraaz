@@ -39,6 +39,7 @@ export default function PopularSearches() {
         
         {/* Left Arrow (Hover pe dikhega) */}
         <button 
+        aria-label="Previous Slide"
           onClick={() => scroll("left")} 
           className="absolute -left-5 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur-sm border border-gray-200 text-gray-800 p-2.5 rounded-full shadow-xl opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-blue-50 hover:scale-110 hover:text-blue-600 hidden md:flex"
         >
@@ -88,6 +89,7 @@ export default function PopularSearches() {
 
         {/* Right Arrow (Hover pe dikhega) */}
         <button 
+        aria-label="Next Slide"
           onClick={() => scroll("right")} 
           className="absolute -right-5 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur-sm border border-gray-200 text-gray-800 p-2.5 rounded-full shadow-xl opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-blue-50 hover:scale-110 hover:text-blue-600 hidden md:flex"
         >

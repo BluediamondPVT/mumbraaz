@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
-import { Metadata } from "next"; // 🔥 1. SEO ke liye import
+import { Metadata } from "next"; 
+import Image from "next/image"; // 🔥 1. Gallery ke liye Image import kiya
 import { MapPin, Phone, Star, MessageCircle, Navigation, Info, Store } from "lucide-react";
 import connectToDatabase from "@/lib/db";
 import { Business } from "@/lib/models/Business";
@@ -9,7 +10,7 @@ import RelatedSlider from "@/components/business/RelatedSlider";
 
 export const revalidate = 3600; // 1 ghante ke liye ISR cache
 
-// 🔥 2. DYNAMIC SEO METADATA FUNCTION 🔥
+// DYNAMIC SEO METADATA FUNCTION
 export async function generateMetadata({
   params,
 }: {
@@ -57,7 +58,7 @@ export default async function BusinessDetailPage({
     notFound();
   }
 
-  // 🔥 2. RELATED BUSINESSES FETCH KARO 🔥
+  // 2. RELATED BUSINESSES FETCH KARO
   const relatedBusinessesRaw = await Business.find({
     category: business.category,
     _id: { $ne: business._id },
@@ -121,10 +122,13 @@ export default async function BusinessDetailPage({
                       key={index} 
                       className="aspect-square rounded-xl overflow-hidden border border-gray-200 group relative bg-gray-100 cursor-pointer"
                     >
-                      <img 
+                      {/* 🔥 2. NEXT/IMAGE FIX: Gallery images ko optimize kiya 🔥 */}
+                      <Image 
                         src={imgUrl} 
                         alt={`${business.name} gallery image ${index + 1}`} 
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        fill
+                        sizes="(max-width: 768px) 50vw, 33vw"
+                        className="object-cover transition-transform duration-500 group-hover:scale-110"
                       />
                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
                     </div>
@@ -164,7 +168,7 @@ export default async function BusinessDetailPage({
                   href={`https://wa.me/${business.contact?.whatsapp}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label={`Chat with ${business.name} on WhatsApp`} // 🔥 ACCESSIBILITY FIX
+                  aria-label={`Chat with ${business.name} on WhatsApp`}
                   className="w-full flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#1DA851] text-white py-4 px-4 rounded-xl font-bold text-lg transition-transform hover:scale-[1.02] shadow-sm"
                 >
                   <MessageCircle className="w-6 h-6" />
@@ -173,7 +177,7 @@ export default async function BusinessDetailPage({
                 
                 <a 
                   href={`tel:${business.contact?.phone}`}
-                  aria-label={`Call ${business.name}`} // 🔥 ACCESSIBILITY FIX
+                  aria-label={`Call ${business.name}`}
                   className="w-full flex items-center justify-center gap-3 bg-blue-600 hover:bg-blue-700 text-white py-4 px-4 rounded-xl font-bold text-lg transition-transform hover:scale-[1.02] shadow-sm"
                 >
                   <Phone className="w-6 h-6" />
@@ -193,9 +197,9 @@ export default async function BusinessDetailPage({
                 <p className="leading-relaxed text-lg">{business.location?.address}, {business.location?.city}, {business.location?.state} - {business.location?.pincode}</p>
               </div>
 
-              {/* 🔥 GOOGLE MAPS LINK FIX: Proper Official Search API URL 🔥 */}
+              {/* 🔥 3. GOOGLE MAPS LINK FIX: Corrected URL Syntax 🔥 */}
               <a 
-                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(business.name + " " + business.location?.city)}`}
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${business.name} ${business.location?.city}`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={`Get directions to ${business.name}`}

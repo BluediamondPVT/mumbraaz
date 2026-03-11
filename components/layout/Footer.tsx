@@ -109,11 +109,12 @@ export default function Footer() {
                 className="w-full bg-slate-800 text-white text-sm px-4 py-3 rounded-l-lg focus:outline-none focus:ring-1 focus:ring-blue-500 border border-transparent focus:border-blue-500 transition-colors"
               />
               <button 
-                type="button"
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-r-lg transition-colors flex items-center justify-center border border-blue-600"
-              >
-                <Send className="w-5 h-5" />
-              </button>
+  type="button"
+  aria-label="Send message"
+  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-r-lg transition-colors flex items-center justify-center border border-blue-600"
+>
+  <Send className="w-5 h-5" />
+</button>
             </form>
 
             <div className="space-y-3 text-sm">
