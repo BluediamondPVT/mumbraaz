@@ -29,7 +29,7 @@ export default function RelatedSlider({ businesses, categorySlug }: { businesses
             <Store className="w-8 h-8 text-gray-300" />
           </div>
           <h3 className="text-lg font-bold text-gray-800">Koi Similar Business Nahi Mila</h3>
-        </div>
+          </div>
       ) : (
         /* Condition 2: Agar businesses hain toh Slider dikhao */
         <div className="relative group">
