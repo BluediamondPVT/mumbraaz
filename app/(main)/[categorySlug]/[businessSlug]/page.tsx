@@ -1,12 +1,41 @@
 import { notFound } from "next/navigation";
+import { Metadata } from "next"; // 🔥 1. SEO ke liye import
 import { MapPin, Phone, Star, MessageCircle, Navigation, Info, Store } from "lucide-react";
 import connectToDatabase from "@/lib/db";
 import { Business } from "@/lib/models/Business";
 import ReviewForm from "@/components/reviews/ReviewForm";
 import ImageSlider from "@/components/business/ImageSlider";
-import RelatedSlider from "@/components/business/RelatedSlider"; // 🔥 Naya Slider Import
+import RelatedSlider from "@/components/business/RelatedSlider"; 
 
 export const revalidate = 3600; // 1 ghante ke liye ISR cache
+
+// 🔥 2. DYNAMIC SEO METADATA FUNCTION 🔥
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ categorySlug: string; businessSlug: string }>;
+}): Promise<Metadata> {
+  const resolvedParams = await params;
+  await connectToDatabase();
+  
+  const business = await Business.findOne({ 
+    slug: resolvedParams.businessSlug, 
+    status: "approved" 
+  }).select("name description location").lean();
+
+  if (!business) {
+    return { title: "Business Not Found | MumbraBiZ" };
+  }
+
+  return {
+    title: `${business.name} in ${business.location?.city} - Contact & Reviews | MumbraBiZ`,
+    description: business.description?.substring(0, 150) + "...",
+    openGraph: {
+      title: `${business.name} | MumbraBiZ`,
+      description: business.description?.substring(0, 150) + "...",
+    }
+  };
+}
 
 export default async function BusinessDetailPage({
   params,
@@ -22,7 +51,7 @@ export default async function BusinessDetailPage({
   const business = await Business.findOne({ 
     slug: businessSlug, 
     status: "approved" 
-  }).lean(); // 🔥 YAHAN .lean() MISSING THA
+  }).lean(); 
 
   if (!business) {
     notFound();
@@ -33,7 +62,7 @@ export default async function BusinessDetailPage({
     category: business.category,
     _id: { $ne: business._id },
     status: "approved"
-  }).limit(10).lean(); // 🔥 YAHAN BHI .lean() LAGA DE
+  }).limit(10).lean(); 
 
   // Client Component (Slider) mein pass karne ke liye Data ko plain format mein convert kiya
   const relatedBusinesses = relatedBusinessesRaw.map(biz => ({
@@ -135,6 +164,7 @@ export default async function BusinessDetailPage({
                   href={`https://wa.me/${business.contact?.whatsapp}`}
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label={`Chat with ${business.name} on WhatsApp`} // 🔥 ACCESSIBILITY FIX
                   className="w-full flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#1DA851] text-white py-4 px-4 rounded-xl font-bold text-lg transition-transform hover:scale-[1.02] shadow-sm"
                 >
                   <MessageCircle className="w-6 h-6" />
@@ -143,6 +173,7 @@ export default async function BusinessDetailPage({
                 
                 <a 
                   href={`tel:${business.contact?.phone}`}
+                  aria-label={`Call ${business.name}`} // 🔥 ACCESSIBILITY FIX
                   className="w-full flex items-center justify-center gap-3 bg-blue-600 hover:bg-blue-700 text-white py-4 px-4 rounded-xl font-bold text-lg transition-transform hover:scale-[1.02] shadow-sm"
                 >
                   <Phone className="w-6 h-6" />
@@ -162,10 +193,12 @@ export default async function BusinessDetailPage({
                 <p className="leading-relaxed text-lg">{business.location?.address}, {business.location?.city}, {business.location?.state} - {business.location?.pincode}</p>
               </div>
 
+              {/* 🔥 GOOGLE MAPS LINK FIX: Proper Official Search API URL 🔥 */}
               <a 
-                href={`https://maps.google.com/?q=${encodeURIComponent(business.name + " " + business.location?.city)}`}
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(business.name + " " + business.location?.city)}`}
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label={`Get directions to ${business.name}`}
                 className="w-full flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-800 py-3 px-4 rounded-xl font-semibold transition-colors mt-6"
               >
                 <Navigation className="w-5 h-5 text-blue-600" />
@@ -176,7 +209,7 @@ export default async function BusinessDetailPage({
           </div>
         </div>
 
-        {/* 🔥 YAHAN APNA NAYA SLIDER COMPONENT CALL KIYA HAI 🔥 */}
+        {/* RELATED BUSINESSES SLIDER */}
         <RelatedSlider businesses={relatedBusinesses} categorySlug={categorySlug} />
 
       </div>

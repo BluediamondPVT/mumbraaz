@@ -1,4 +1,6 @@
 import { Suspense } from "react";
+import type { Metadata } from "next"; 
+import Image from "next/image"; 
 import connectToDatabase from "@/lib/db";
 import { Category } from "@/lib/models/Category";
 import { Business } from "@/lib/models/Business";
@@ -6,13 +8,23 @@ import CategoryCard from "@/components/CategoryCard";
 import PopularServices from "@/components/home/PopularServices"; 
 import TravelBookings from "@/components/home/TravelBookings";
 import PopularSearches from "@/components/home/PopularSearches";
+import BlogSlider from "@/components/home/BlogSlider";
 
 export const revalidate = 3600; // 1 ghante ke liye ISR cache (Super fast speed ke liye)
+
+// 🔥 2. PAGE KA SEO METADATA (Google Search ke liye) 🔥
+export const metadata: Metadata = {
+  title: "MumbraBiZ | Find Best Local Businesses & Services",
+  description: "Explore the best local businesses, services, and professionals in Mumbra and Thane. Buy, sell, and connect with top-rated local categories.",
+  alternates: {
+    canonical: "/", // Duplicate content issue ko rokne ke liye
+  }
+};
 
 async function CategoriesSection() {
   await connectToDatabase();
   
-  // 🔥 Yahan .lean() add kiya hai taaki DB se plain data jaldi aaye
+  // Yahan .lean() add kiya hai taaki DB se plain data jaldi aaye
   const categories = await Category.find({ isActive: true }).sort({ createdAt: -1 }).lean();
 
   const categoriesWithCount = await Promise.all(
@@ -32,36 +44,42 @@ async function CategoriesSection() {
   );
 
   return (
-    <div className="bg-white min-h-screen p-4 sm:p-6 lg:p-8">
+    <main className="bg-white min-h-screen p-4 sm:p-6 lg:p-8"> {/* div ki jagah <main> use kiya for better HTML structure */}
       
-      {/* Banner Image */}
-      <div className="w-full">
-        <img 
+      {/* Banner Image Optimized for 100/100 LCP */}
+      <section className="w-full">
+        <Image 
           src="/banner.jpg" 
-          alt="Banner" 
+          alt="MumbraBiZ - Find Local Businesses and Services Desktop Banner" // 🔥 3. Alt text ko descriptive banaya
+          width={1920} 
+          height={400}
+          priority 
           className="w-full h-auto hidden sm:block max-h-[400px] object-cover rounded-lg shadow-md"
         />
-        <img 
+        <Image 
           src="/banner3.jpg" 
-          alt="Banner-2" 
+          alt="MumbraBiZ - Best Local Directory Mobile Banner" 
+          width={800}
+          height={400}
+          priority 
           className="w-full h-auto block sm:hidden max-h-[400px] object-cover rounded-lg shadow-md"
         />
-      </div>
+      </section>
 
       {/* Category Section */}
-      <div className="py-12 px-4 sm:px-6 lg:px-8">
+      <section className="py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="flex justify-between items-center mb-12">
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-                Our Category
-              </h2>
+              {/* 🔥 4. h2 ko H1 banaya kyunki homepage par main title yahi hai 🔥 */}
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+                Explore Local Categories
+              </h1>
               <p className="text-gray-600">
-                Buy and Sell Everything from Used Our Top Category
+                Buy and Sell Everything from Our Top Rated Categories
               </p>
             </div>
-            {/* View All button comment rakha hai */}
           </div>
 
           {/* Categories Grid */}
@@ -83,28 +101,35 @@ async function CategoriesSection() {
             </div>
           )}
         </div>
-      </div>
+      </section>
 
-     {/* 🔥 NAYA POPULAR SERVICES COMPONENT 🔥 */}
-      <div className="bg-slate-50 border-t border-gray-100">
+     {/* NAYA POPULAR SERVICES COMPONENT */}
+      <section className="bg-slate-50 border-t border-gray-100">
         <PopularServices />
-
-        {/* 🔥 YAHAN TERA TRAVEL BOOKINGS HAI 🔥 */}
         <TravelBookings />
-      </div>
+      </section>
 
-      {/* 🔥 NAYA POPULAR SEARCHES SLIDER YAHAN AAYEGA 🔥 */}
-      <div className="bg-white">
+      {/* NAYA POPULAR SEARCHES SLIDER */}
+      <section className="bg-white">
         <PopularSearches />
-      </div>
+      </section>
 
-    </div>
+      {/* NAYA BLOG SLIDER */}
+      <section className="bg-slate-50 border-t border-gray-100">
+        <BlogSlider />
+      </section>
+
+    </main>
   );
 }
 
 export default function HomePage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-white flex items-center justify-center font-semibold text-blue-600">Loading Categories...</div>}>
+    <Suspense fallback={
+      <div className="min-h-screen bg-white flex items-center justify-center font-semibold text-blue-600">
+        <span aria-live="polite">Loading Categories...</span> {/* Screen readers ke liye loading state */}
+      </div>
+    }>
       <CategoriesSection />
     </Suspense>
   );

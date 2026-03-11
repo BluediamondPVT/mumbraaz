@@ -1,6 +1,8 @@
 import Link from "next/link";
+import Image from "next/image"; // 🔥 1. Image component import kiya
 import { notFound } from "next/navigation";
-import { MapPin, Phone, Star, MessageCircle, Navigation } from "lucide-react";
+import { Metadata } from "next"; // 🔥 2. SEO ke liye Metadata import kiya
+import { MapPin, Phone, Star, MessageCircle } from "lucide-react";
 import connectToDatabase from "@/lib/db";
 import { Category } from "@/lib/models/Category";
 import { Business } from "@/lib/models/Business";
@@ -8,9 +10,30 @@ import CategorySidebar from "@/components/category/CategorySidebar";
 
 export const revalidate = 3600; // 1 ghante ke liye ISR cache
 
+// 🔥 3. SEO BADA KARNE KE LIYE DYNAMIC METADATA ADD KIYA 🔥
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ categorySlug: string }>;
+}): Promise<Metadata> {
+  const resolvedParams = await params;
+  await connectToDatabase();
+  
+  const category = await Category.findOne({ slug: resolvedParams.categorySlug, isActive: true }).lean();
+
+  if (!category) {
+    return { title: "Category Not Found | MumbraBiZ" };
+  }
+
+  return {
+    title: `Best ${category.name} Services | MumbraBiZ`,
+    description: `Find the top-rated ${category.name} businesses, shops, and services in your city. Read reviews and contact them directly on MumbraBiZ.`,
+  };
+}
+
 export default async function CategoryListingPage({
   params,
-  searchParams, // 🔥 Next.js feature: URL ke filters padhne ke liye
+  searchParams, 
 }: {
   params: Promise<{ categorySlug: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -18,34 +41,29 @@ export default async function CategoryListingPage({
   const resolvedParams = await params;
   const slug = resolvedParams.categorySlug;
   
-  // URL se city filter nikal rahe hain (e.g. ?city=Thane,Mumbra)
   const resolvedSearchParams = await searchParams;
   const cityFilter = resolvedSearchParams.city as string;
 
   await connectToDatabase();
 
-  // 1. Current category dhoondo
-  const category = await Category.findOne({ slug: slug, isActive: true });
+  // 🔥 4. SPEED BADHANE KE LIYE SAB MEIN .lean() LAGA DIYA 🔥
+  const category = await Category.findOne({ slug: slug, isActive: true }).lean();
   if (!category) {
     notFound(); 
   }
 
-  // 2. Sidebar ke liye saari categories laao
-  const allCategories = await Category.find({ isActive: true }).select("name slug").sort({ name: 1 });
+  const allCategories = await Category.find({ isActive: true }).select("name slug").sort({ name: 1 }).lean();
 
-  // 3. Filter Query Banao
   const query: any = { category: category._id, status: "approved" };
   if (cityFilter) {
-    // Agar URL me city hai, toh usko array me convert karke filter lagao
     const citiesArray = cityFilter.split(",");
     query["location.city"] = { $in: citiesArray.map(c => new RegExp(`^${c}$`, 'i')) };
   }
 
-  // 4. Businesses fetch karo (filtered)
-  const businesses = await Business.find(query).sort({ createdAt: -1 });
+  const businesses = await Business.find(query).sort({ createdAt: -1 }).lean();
 
-  // 5. Sidebar checkbox ke liye unique cities nikalo is category ki dukaano me se
- const uniqueCities = await Business.distinct("location.city", { status: "approved" });
+  // distinct pe .lean() ki zaroorat nahi hoti kyunki wo direct array return karta hai
+  const uniqueCities = await Business.distinct("location.city", { status: "approved" });
 
   return (
     <div className="min-h-screen bg-slate-50 pb-16">
@@ -67,7 +85,7 @@ export default async function CategoryListingPage({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           
-          {/* 🔥 LEFT SIDEBAR 🔥 */}
+          {/* LEFT SIDEBAR */}
           <div className="lg:col-span-1">
             <CategorySidebar 
               categories={JSON.parse(JSON.stringify(allCategories))} 
@@ -76,7 +94,7 @@ export default async function CategoryListingPage({
             />
           </div>
 
-          {/* 🔥 RIGHT CONTENT (Horizontal Cards) 🔥 */}
+          {/* RIGHT CONTENT (Horizontal Cards) */}
           <div className="lg:col-span-3">
             {businesses.length === 0 ? (
               <div className="text-center py-20 bg-white rounded-2xl shadow-sm border border-gray-100">
@@ -87,7 +105,7 @@ export default async function CategoryListingPage({
                 <p className="text-gray-500 mt-2">Kripya koi dusri city select karein ya filters hatayein.</p>
               </div>
             ) : (
-              <div className="space-y-6"> {/* Horizontal cards ke liye flex-col ke bajaye space-y diya hai */}
+              <div className="space-y-6"> 
                 {businesses.map((biz) => (
                   <div 
                     key={biz._id.toString()} 
@@ -95,10 +113,13 @@ export default async function CategoryListingPage({
                   >
                     {/* Left: Image Box */}
                     <div className="sm:w-64 md:w-72 h-56 sm:h-auto shrink-0 relative bg-gray-100 overflow-hidden">
-                      <img 
+                      {/* 🔥 5. IMAGE OPTIMIZATION: LCP ke liye next/image use kiya 🔥 */}
+                      <Image 
                         src={biz.media?.thumbnail || "https://placehold.co/600x400/png"} 
-                        alt={biz.name}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        alt={`${biz.name} profile image`}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 300px"
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                       <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-yellow-600 text-xs font-bold px-2.5 py-1.5 rounded-lg flex items-center gap-1 shadow-sm">
                         <Star className="w-3.5 h-3.5 fill-current" />
@@ -125,10 +146,11 @@ export default async function CategoryListingPage({
                         </p>
                       </div>
 
-{/* Action Buttons */}
+                      {/* Action Buttons */}
                       <div className="mt-6 pt-5 border-t border-gray-100 flex flex-wrap sm:flex-nowrap gap-3">
                         <Link 
                           href={`/${slug}/${biz.slug}`}
+                          aria-label={`View details of ${biz.name}`}
                           className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-center py-3 px-4 rounded-xl font-semibold transition-all shadow-md hover:shadow-lg active:scale-[0.98]"
                         >
                           <span>View Details</span>
@@ -136,6 +158,7 @@ export default async function CategoryListingPage({
 
                         <a 
                           href={`tel:${biz.contact?.phone}`} 
+                          aria-label={`Call ${biz.name}`}
                           className="flex items-center justify-center gap-2 bg-white border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-3 rounded-xl font-semibold transition-all shadow-sm hover:shadow-md"
                         >
                           <Phone className="w-5 h-5 text-gray-600" />
@@ -146,6 +169,7 @@ export default async function CategoryListingPage({
                           href={`https://wa.me/${biz.contact?.whatsapp}`} 
                           target="_blank"
                           rel="noopener noreferrer"
+                          aria-label={`WhatsApp ${biz.name}`}
                           className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1DA851] text-white px-4 py-3 rounded-xl font-semibold transition-all shadow-md hover:shadow-lg"
                         >
                           <MessageCircle className="w-5 h-5" />
