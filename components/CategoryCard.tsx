@@ -1,6 +1,5 @@
-"use client"; 
-
 import Link from "next/link";
+import Image from "next/image"; 
 
 interface CategoryCardProps {
   slug: string;
@@ -16,90 +15,34 @@ export default function CategoryCard({
   businessCount,
 }: CategoryCardProps) {
   return (
-    <Link href={`/${slug}`}>
-      <div className="category-card">
-        <div className="category-icon">
+    <Link href={`/${slug}`} aria-label={`View ${name} category`}>
+      <div className="flex flex-col items-center gap-1 px-2 py-2.5 bg-white/70 backdrop-blur-md border-2 border-white/90 rounded-2xl text-center transition-all duration-300 ease-out cursor-pointer text-inherit shadow-[0_3px_9px_rgba(79,70,229,0.15)] hover:-translate-y-2 hover:bg-white/90 hover:border-indigo-600 hover:shadow-[0_8px_24px_rgba(79,70,229,0.15)] group">
+        
+        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-50 to-indigo-100 flex items-center justify-center overflow-hidden shrink-0 relative mb-1">
           {iconUrl ? (
-            <img src={iconUrl} alt={name} />
+            // 🔥 Next.js Image optimization for fast loading
+            <Image 
+              src={iconUrl} 
+              alt={`${name} icon`} 
+              fill
+              sizes="56px"
+              className="object-cover transition-transform duration-300 group-hover:scale-110"
+            />
           ) : (
-            <div className="icon-placeholder">{name.charAt(0)}</div>
+            <div className="text-2xl font-semibold text-indigo-600 leading-none">
+              {name.charAt(0)}
+            </div>
           )}
         </div>
-        <h3 className="category-name">{name}</h3>
-        <p className="category-count">{businessCount} listings</p>
+        
+        <h3 className="text-sm font-semibold text-slate-800 m-0 leading-snug line-clamp-2">
+          {name}
+        </h3>
+        <p className="text-xs text-slate-500 m-0 font-medium">
+          {businessCount} listings
+        </p>
+
       </div>
-
-      <style jsx>{`
-        .category-card {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 2px;
-          padding: 10px 6px;
-          background: rgba(255, 255, 255, 0.7);
-          backdrop-filter: blur(20px);
-          border: 2px solid rgba(255, 255, 255, 0.9);
-          border-radius: 16px;
-          text-align: center;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          cursor: pointer;
-          text-decoration: none;
-          color: inherit;
-          box-shadow: 0 3px 9px rgba(79, 70, 229, 0.15);
-        }
-
-        .category-card:hover {
-          transform: translateY(-8px);
-          background: rgba(255, 255, 255, 0.9);
-          border-color: #4f46e5;
-          box-shadow: 0 8px 24px rgba(79, 70, 229, 0.15);
-        }
-
-        .category-icon {
-          width: 56px;
-          height: 56px;
-          border-radius: 12px;
-          background: linear-gradient(135deg, #eef2ff, #e0e7ff);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          overflow: hidden;
-          flex-shrink: 0;
-        }
-
-        .category-icon img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-
-        .icon-placeholder {
-          font-size: 24px;
-          font-weight: 600;
-          color: #4f46e5;
-          line-height: 1;
-        }
-
-        .category-name {
-          font-size: 14px;
-          font-weight: 600;
-          color: #1e293b;
-          margin: 0;
-          line-height: 1.4;
-          max-height: 2.8em;
-          overflow: hidden;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-        }
-
-        .category-count {
-          font-size: 12px;
-          color: #64748b;
-          margin: 0;
-          font-weight: 500;
-        }
-      `}</style>
     </Link>
   );
 }

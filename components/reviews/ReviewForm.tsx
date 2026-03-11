@@ -65,9 +65,13 @@ export default function ReviewForm({ businessId }: { businessId: string }) {
       {!isSignedIn ? (
         <div className="bg-gray-50 p-6 rounded-xl text-center border border-gray-200">
           <p className="text-gray-600 mb-4">Review likhne ke liye login karna zaroori hai.</p>
-          <Link href="/login" className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium inline-block transition-colors">
-            Log in to Review
-          </Link>
+         <Link 
+  href="/login"
+  aria-label="Log in to review this product"
+  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium inline-block transition-colors"
+>
+  Log in to Review
+</Link>
         </div>
       ) : (
         /* Agar User Login HAI toh Form dikhao */
