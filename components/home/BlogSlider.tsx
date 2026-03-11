@@ -13,7 +13,7 @@ const blogs = [
     category: "Food & Dining", 
     date: "Mar 10, 2026", 
     readTime: "5 min read", 
-    img: "/banner3.jpg", 
+    img: "/blog/sahil-hotel.jpg", 
     slug: "/blog/best-cafes" 
   },
   { 
@@ -22,7 +22,7 @@ const blogs = [
     category: "Weddings", 
     date: "Mar 8, 2026", 
     readTime: "8 min read", 
-    img: "/banner3.jpg", 
+    img: "/blog/wedding.jpg", 
     slug: "/blog/wedding-halls" 
   },
   { 
@@ -31,7 +31,7 @@ const blogs = [
     category: "Real Estate", 
     date: "Mar 5, 2026", 
     readTime: "6 min read", 
-    img: "/banner3.jpg", 
+    img: "/blog/real-state.webp", 
     slug: "/blog/real-estate" 
   },
   { 
@@ -40,7 +40,7 @@ const blogs = [
     category: "Automotive", 
     date: "Mar 1, 2026", 
     readTime: "4 min read", 
-    img: "/banner3.jpg", 
+    img: "/blog/automotive.jpg", 
     slug: "/blog/car-maintenance" 
   },
   { 
@@ -49,7 +49,7 @@ const blogs = [
     category: "Home Decor", 
     date: "Feb 25, 2026", 
     readTime: "7 min read", 
-    img: "/banner3.jpg", 
+    img: "/blog/home-decore.jpg", 
     slug: "/blog/interior-design" 
   },
 ];

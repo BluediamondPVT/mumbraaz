@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Menu } from 'lucide-react';
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import AdminStatsCards from "@/components/admin/AdminStatsCards";
 import BusinessList from "@/components/admin/BusinessList";
@@ -10,132 +11,103 @@ import CategoryForm from "@/components/admin/CategoryForm";
 import BusinessForm from "@/components/admin/BusinessForm";
 
 export default function AdminDashboardClient() {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'businesses' | 'categories' | 'reviews'>('dashboard');
+  // 🔥 Ab naye tabs track honge yahan
+  const [activeTab, setActiveTab] = useState<string>('dashboard');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    // Handle navigation from sidebar links
-    const handleNavClick = () => {
-      const hash = window.location.hash.substring(1);
-      if (hash === 'overview') setActiveTab('dashboard');
-      else if (hash === 'businesses') setActiveTab('businesses');
-      else if (hash === 'categories') setActiveTab('categories');
-      else if (hash === 'reviews') setActiveTab('reviews');
-    };
-
-    // Set initial tab based on hash
-    handleNavClick();
-    window.addEventListener('hashchange', handleNavClick);
-    return () => window.removeEventListener('hashchange', handleNavClick);
+    const hash = window.location.hash.substring(1);
+    if (['businesses', 'categories', 'reviews', 'add-business', 'add-category'].includes(hash)) {
+       setActiveTab(hash);
+    } else {
+       setActiveTab('dashboard');
+    }
   }, []);
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
-      <AdminSidebar activeSection={activeTab} />
+    <div className="flex h-screen w-full bg-[#f8fafc] overflow-hidden font-sans text-slate-800">
+      
+      {/* Sidebar Wrapper */}
+      <div className={`fixed inset-y-0 left-0 z-50 transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 transition-transform duration-300 ease-in-out`}>
+        <AdminSidebar activeSection={activeTab} setActiveSection={setActiveTab} />
+      </div>
 
-      {/* Main Content */}
-      <main className="flex-1 md:ml-64 overflow-y-auto">
-        {/* Header */}
-        <div className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
-          <div className="px-6 py-6 max-w-7xl mx-auto">
-            <h1 className="text-4xl font-bold text-gray-900 mb-1">Admin Dashboard</h1>
-            <p className="text-gray-600">Manage businesses, categories, and reviews</p>
+      {/* Main Content Wrapper */}
+      <main className="flex-1 flex flex-col h-full w-full overflow-hidden">
+        
+        {/* Top Header */}
+        <div className="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm shrink-0">
+          <div className="px-6 py-4 max-w-7xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-4">
+               <button onClick={() => setSidebarOpen(!sidebarOpen)} className="md:hidden text-slate-500 hover:text-slate-800 bg-slate-100 p-2 rounded-lg transition-colors">
+                 <Menu className="w-5 h-5" />
+               </button>
+               <div>
+                  <h1 className="text-xl md:text-2xl font-bold text-slate-900 mb-0.5">Admin Dashboard</h1>
+                  <p className="text-xs text-slate-500 hidden sm:block font-medium">Manage your platform efficiently</p>
+               </div>
+            </div>
           </div>
         </div>
 
-        {/* Content Area */}
-        <div className="px-6 py-8 max-w-7xl mx-auto">
-          {/* Dashboard Overview Tab */}
-          {activeTab === 'dashboard' && (
-            <div id="overview" className="space-y-8">
-              {/* Stats Cards */}
-              <AdminStatsCards />
-
-              {/* Welcome Section */}
-              <div className="bg-white rounded-lg shadow-md p-8 border border-gray-100">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">Welcome to Your Admin Dashboard</h2>
-                <p className="text-gray-600 mb-6">
-                  Manage every aspect of your City Directory platform. Use the sidebar navigation to access different sections:
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                    <h3 className="font-semibold text-blue-900 mb-2">📍 All Businesses</h3>
-                    <p className="text-sm text-blue-700">View and manage all registered businesses with their details, status, and ratings.</p>
-                  </div>
-                  <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                    <h3 className="font-semibold text-green-900 mb-2">📂 All Categories</h3>
-                    <p className="text-sm text-green-700">Create, edit, and manage product/service categories for organized browsing.</p>
-                  </div>
-                  <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
-                    <h3 className="font-semibold text-purple-900 mb-2">⭐ Ratings & Reviews</h3>
-                    <p className="text-sm text-purple-700">Monitor customer feedback with comprehensive review analytics and ratings.</p>
-                  </div>
-                  <div className="p-4 bg-orange-50 rounded-lg border border-orange-200">
-                    <h3 className="font-semibold text-orange-900 mb-2">➕ Quick Actions</h3>
-                    <p className="text-sm text-orange-700">Use quick add buttons in the sidebar to create new categories and businesses.</p>
-                  </div>
+        {/* Scrollable Content Area */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 w-full">
+          <div className="max-w-7xl mx-auto">
+            
+            {/* 1. Dashboard Overview */}
+            {activeTab === 'dashboard' && (
+              <div className="space-y-8 animate-in fade-in duration-300">
+                <AdminStatsCards />
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 text-center">
+                    <h2 className="text-2xl font-bold text-slate-800 mb-2">Welcome to Control Center</h2>
+                    <p className="text-slate-500 max-w-2xl mx-auto">Use the sidebar navigation to manage businesses, add new categories, and monitor customer reviews across your platform.</p>
                 </div>
               </div>
+            )}
 
-              {/* Quick Add Forms */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="bg-white rounded-lg shadow-md p-6 border border-gray-100">
-                  <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                    <div className="bg-green-100 rounded-lg p-2">
-                      <span className="text-green-600 text-lg">📂</span>
-                    </div>
-                    Add New Category
-                  </h3>
-                  <CategoryForm />
-                </div>
-
-                <div className="bg-white rounded-lg shadow-md p-6 border border-gray-100">
-                  <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                    <div className="bg-blue-100 rounded-lg p-2">
-                      <span className="text-blue-600 text-lg">🏢</span>
-                    </div>
-                    Add New Business
-                  </h3>
-                  <BusinessForm />
-                </div>
+            {/* 2. 🔥 YAHAN DIKHEGA TERA ADD BUSINESS FORM 🔥 */}
+            {activeTab === 'add-business' && (
+              <div className="animate-in fade-in duration-300 max-w-5xl mx-auto">
+                <BusinessForm />
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Businesses Tab */}
-          {activeTab === 'businesses' && (
-            <div id="businesses" className="space-y-6">
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">All Businesses</h2>
-                <p className="text-gray-600 mt-2">Complete list of all registered businesses on your platform</p>
+            {/* 3. 🔥 YAHAN DIKHEGA TERA ADD CATEGORY FORM 🔥 */}
+            {activeTab === 'add-category' && (
+              <div className="animate-in fade-in duration-300 max-w-3xl mx-auto">
+                <CategoryForm />
               </div>
-              <BusinessList />
-            </div>
-          )}
+            )}
 
-          {/* Categories Tab */}
-          {activeTab === 'categories' && (
-            <div id="categories" className="space-y-6">
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">All Categories</h2>
-                <p className="text-gray-600 mt-2">Organize and manage service/product categories</p>
+            {/* 4. Business List */}
+            {activeTab === 'businesses' && (
+              <div className="space-y-6 animate-in fade-in duration-300">
+                <BusinessList />
               </div>
-              <CategoryList />
-            </div>
-          )}
+            )}
 
-          {/* Reviews Tab */}
-          {activeTab === 'reviews' && (
-            <div id="reviews" className="space-y-6">
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">All Ratings & Reviews</h2>
-                <p className="text-gray-600 mt-2">Monitor all customer reviews and ratings across your platform</p>
+            {/* 5. Category List */}
+            {activeTab === 'categories' && (
+              <div className="space-y-6 animate-in fade-in duration-300">
+                <CategoryList />
               </div>
-              <ReviewsList />
-            </div>
-          )}
+            )}
+
+            {/* 6. Reviews List */}
+            {activeTab === 'reviews' && (
+              <div className="space-y-6 animate-in fade-in duration-300">
+                <ReviewsList />
+              </div>
+            )}
+
+          </div>
         </div>
       </main>
+      
+      {/* Mobile Overlay */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 md:hidden" onClick={() => setSidebarOpen(false)}></div>
+      )}
     </div>
   );
 }
