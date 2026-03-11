@@ -151,7 +151,7 @@ export default function AdminSidebar({
         <div className="flex items-center gap-3 p-2 hover:bg-white hover:shadow-sm border border-transparent hover:border-slate-200 rounded-xl transition-all cursor-pointer">
           <div className="shrink-0 flex items-center justify-center">
             {isLoaded ? (
-               <UserButton afterSignOutUrl="/" />
+               <UserButton  />
             ) : (
                <div className="w-8 h-8 rounded-full bg-slate-200 animate-pulse"></div>
             )}
