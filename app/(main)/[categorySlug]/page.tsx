@@ -4,7 +4,9 @@ import { MapPin, Phone, Star, MessageCircle, Navigation } from "lucide-react";
 import connectToDatabase from "@/lib/db";
 import { Category } from "@/lib/models/Category";
 import { Business } from "@/lib/models/Business";
-import CategorySidebar from "@/components/category/CategorySidebar"; // 🔥 Naya Sidebar Import kiya
+import CategorySidebar from "@/components/category/CategorySidebar"; 
+
+export const revalidate = 3600; // 1 ghante ke liye ISR cache
 
 export default async function CategoryListingPage({
   params,

@@ -6,6 +6,8 @@ import ReviewForm from "@/components/reviews/ReviewForm";
 import ImageSlider from "@/components/business/ImageSlider";
 import RelatedSlider from "@/components/business/RelatedSlider"; // 🔥 Naya Slider Import
 
+export const revalidate = 3600; // 1 ghante ke liye ISR cache
+
 export default async function BusinessDetailPage({
   params,
 }: {

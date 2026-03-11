@@ -3,13 +3,20 @@ import connectToDatabase from "@/lib/db";
 import { Category } from "@/lib/models/Category";
 import { Business } from "@/lib/models/Business";
 import CategoryCard from "@/components/CategoryCard";
+import PopularServices from "@/components/home/PopularServices"; 
+import TravelBookings from "@/components/home/TravelBookings";
+import PopularSearches from "@/components/home/PopularSearches";
+
+export const revalidate = 3600; // 1 ghante ke liye ISR cache (Super fast speed ke liye)
 
 async function CategoriesSection() {
   await connectToDatabase();
-  const categories = await Category.find({ isActive: true }).sort({ createdAt: -1 });
+  
+  // 🔥 Yahan .lean() add kiya hai taaki DB se plain data jaldi aaye
+  const categories = await Category.find({ isActive: true }).sort({ createdAt: -1 }).lean();
 
   const categoriesWithCount = await Promise.all(
-    categories.map(async (cat) => {
+    categories.map(async (cat: any) => {
       const businessCount = await Business.countDocuments({
         category: cat._id,
         status: 'approved'
@@ -25,21 +32,19 @@ async function CategoriesSection() {
   );
 
   return (
-
-    
-
-    <div className="bg-white min-h-screen p-4 sm:p-6 lg:p-8 ">
+    <div className="bg-white min-h-screen p-4 sm:p-6 lg:p-8">
+      
       {/* Banner Image */}
       <div className="w-full">
         <img 
           src="/banner.jpg" 
           alt="Banner" 
-          className="w-full h-auto hidden sm:block  max-h-[400px] object-cover rounded-lg shadow-md"
+          className="w-full h-auto hidden sm:block max-h-[400px] object-cover rounded-lg shadow-md"
         />
         <img 
           src="/banner3.jpg" 
           alt="Banner-2" 
-          className="w-full h-auto block sm:hidden  max-h-[400px] object-cover rounded-lg shadow-md"
+          className="w-full h-auto block sm:hidden max-h-[400px] object-cover rounded-lg shadow-md"
         />
       </div>
 
@@ -56,12 +61,7 @@ async function CategoriesSection() {
                 Buy and Sell Everything from Used Our Top Category
               </p>
             </div>
-            {/* <a 
-              href="#" 
-              className="text-red-500 border-2 border-red-500 px-6 py-2 rounded-lg font-medium hover:bg-red-50 transition-colors whitespace-nowrap"
-            >
-              View All
-            </a> */}
+            {/* View All button comment rakha hai */}
           </div>
 
           {/* Categories Grid */}
@@ -84,13 +84,27 @@ async function CategoriesSection() {
           )}
         </div>
       </div>
+
+     {/* 🔥 NAYA POPULAR SERVICES COMPONENT 🔥 */}
+      <div className="bg-slate-50 border-t border-gray-100">
+        <PopularServices />
+
+        {/* 🔥 YAHAN TERA TRAVEL BOOKINGS HAI 🔥 */}
+        <TravelBookings />
+      </div>
+
+      {/* 🔥 NAYA POPULAR SEARCHES SLIDER YAHAN AAYEGA 🔥 */}
+      <div className="bg-white">
+        <PopularSearches />
+      </div>
+
     </div>
   );
 }
 
 export default function HomePage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-white flex items-center justify-center">Loading...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-white flex items-center justify-center font-semibold text-blue-600">Loading Categories...</div>}>
       <CategoriesSection />
     </Suspense>
   );
