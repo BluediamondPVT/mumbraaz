@@ -20,7 +20,7 @@ export default async function BusinessDetailPage({
   const business = await Business.findOne({ 
     slug: businessSlug, 
     status: "approved" 
-  });
+  }).lean(); // 🔥 YAHAN .lean() MISSING THA
 
   if (!business) {
     notFound();
@@ -31,7 +31,7 @@ export default async function BusinessDetailPage({
     category: business.category,
     _id: { $ne: business._id },
     status: "approved"
-  }).limit(10); // Slider hai isliye zyada (10) manga rahe hain
+  }).limit(10).lean(); // 🔥 YAHAN BHI .lean() LAGA DE
 
   // Client Component (Slider) mein pass karne ke liye Data ko plain format mein convert kiya
   const relatedBusinesses = relatedBusinessesRaw.map(biz => ({
@@ -161,7 +161,7 @@ export default async function BusinessDetailPage({
               </div>
 
               <a 
-                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(business.name + " " + business.location?.city)}`}
+                href={`https://maps.google.com/?q=${encodeURIComponent(business.name + " " + business.location?.city)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-800 py-3 px-4 rounded-xl font-semibold transition-colors mt-6"
