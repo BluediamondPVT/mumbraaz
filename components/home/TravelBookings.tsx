@@ -44,10 +44,10 @@ export default function TravelBookings() {
         {/* Left Side: Text Content */}
         <div className="flex-shrink-0 w-full lg:w-1/4 text-center lg:text-left">
           <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-2">
-            Travel Bookings
+            GO Mumbra
           </h2>
           <p className="text-sm text-gray-500 mb-4 leading-relaxed">
-            Instant ticket bookings for your best travel experience
+            Book Your Ride Lowest Cost
           </p>
           {/* <Link 
             href="/travel" 

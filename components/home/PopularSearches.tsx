@@ -7,12 +7,12 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 // Static mock data (Test karne ke liye teri /banner3.jpg use ki hai)
 const popularSearches = [
-  { title: "Real Estate Agents", img: "/banner3.jpg", action: "Enquire Now", link: "/real-estate" },
-  { title: "Banquet Halls", img: "/banner3.jpg", action: "Enquire Now", link: "/banquet-halls" },
-  { title: "Caterers", img: "/banner3.jpg", action: "Enquire Now", link: "/caterers" },
-  { title: "Pathology Labs", img: "/banner3.jpg", action: "Explore", link: "/pathology" },
-  { title: "Gynaecologist & Obstetrician Doctors", img: "/banner3.jpg", action: "Explore", link: "/doctors" },
-  { title: "Interior Designers", img: "/banner3.jpg", action: "Enquire Now", link: "/interior-designers" },
+  { title: "Real Estate Agents", img: "/popular-searches/realstate.webp", action: "Enquire Now", link: "/real-estate" },
+  { title: "Banquet Halls", img: "/popular-searches/10035861.webp", action: "Enquire Now", link: "/banquet-halls" },
+  { title: "Caterers", img: "/popular-searches/10083293.webp", action: "Enquire Now", link: "/caterers" },
+  { title: "Pathology Labs", img: "/popular-searches/10356131.webp", action: "Explore", link: "/pathology" },
+  { title: "Gynaecologist & Obstetrician Doctors", img: "/popular-searches/10551087.webp", action: "Explore", link: "/doctors" },
+  { title: "Interior Designers", img: "/popular-searches/10156331.webp", action: "Enquire Now", link: "/interior-designers" },
 ];
 
 export default function PopularSearches() {

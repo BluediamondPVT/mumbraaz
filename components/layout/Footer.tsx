@@ -36,18 +36,18 @@ export default function Footer() {
             </p>
             {/* Social Icons */}
             <div className="flex items-center gap-4 pt-2">
-              <a href="#" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all duration-300 hover:-translate-y-1">
+              <Link href="testing" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all duration-300 hover:-translate-y-1">
                 <Facebook className="w-5 h-5" />
-              </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-pink-600 hover:text-white transition-all duration-300 hover:-translate-y-1">
+              </Link>
+              <Link href="testing" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-pink-600 hover:text-white transition-all duration-300 hover:-translate-y-1">
                 <Instagram className="w-5 h-5" />
-              </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-blue-400 hover:text-white transition-all duration-300 hover:-translate-y-1">
+              </Link>
+              <Link href="testing" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-blue-400 hover:text-white transition-all duration-300 hover:-translate-y-1">
                 <Twitter className="w-5 h-5" />
-              </a>
-              <a href="#" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-blue-700 hover:text-white transition-all duration-300 hover:-translate-y-1">
+              </Link>
+              <Link href="testing" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-blue-700 hover:text-white transition-all duration-300 hover:-translate-y-1">
                 <Linkedin className="w-5 h-5" />
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -61,7 +61,7 @@ export default function Footer() {
               {['About Us', 'Contact Support', 'Add Your Business', 'Pricing Plans', 'Blog & News'].map((link) => (
                 <li key={link}>
                   <Link 
-                    href="#" 
+                    href="testing" 
                     className="group flex items-center text-sm font-medium hover:text-blue-400 transition-colors duration-300"
                   >
                     <ChevronRight className="w-4 h-4 mr-2 text-slate-600 group-hover:text-blue-400 group-hover:translate-x-1 transition-transform" />
@@ -82,7 +82,7 @@ export default function Footer() {
               {['Real Estate Agents', 'Banquet Halls', 'Restaurants & Cafes', 'Hospitals & Clinics', 'Home Repairs'].map((link) => (
                 <li key={link}>
                   <Link 
-                    href="#" 
+                    href="testing" 
                     className="group flex items-center text-sm font-medium hover:text-blue-400 transition-colors duration-300"
                   >
                     <ChevronRight className="w-4 h-4 mr-2 text-slate-600 group-hover:text-blue-400 group-hover:translate-x-1 transition-transform" />
@@ -140,9 +140,9 @@ export default function Footer() {
             &copy; {currentYear} MumbraBiZ. All rights reserved.
           </p>
           <div className="flex items-center gap-6 text-sm font-medium text-slate-500">
-            <Link href="#" className="hover:text-blue-400 transition-colors">Privacy Policy</Link>
-            <Link href="#" className="hover:text-blue-400 transition-colors">Terms of Service</Link>
-            <Link href="#" className="hover:text-blue-400 transition-colors">FAQ</Link>
+            <Link href="testing" className="hover:text-blue-400 transition-colors">Privacy Policy</Link>
+            <Link href="testing" className="hover:text-blue-400 transition-colors">Terms of Service</Link>
+            <Link href="testing" className="hover:text-blue-400 transition-colors">FAQ</Link>
           </div>
         </div>
 
