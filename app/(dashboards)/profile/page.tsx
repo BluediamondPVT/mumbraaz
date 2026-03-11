@@ -1,3 +1,4 @@
+export const revalidate = 3600; // 1 ghante ke liye ISR cache
 export default function ProfilePage() {
   return (
     <div className="p-8">

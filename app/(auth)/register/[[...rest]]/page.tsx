@@ -1,4 +1,5 @@
 import { SignUp } from "@clerk/nextjs";
+export const revalidate = 3600; // 1 ghante ke liye ISR cache
 
 export default function RegisterPage() {
   return (
