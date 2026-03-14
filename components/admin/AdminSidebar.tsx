@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { 
   LayoutDashboard, Building2, Layers, Star, 
   Home, LogOut, ChevronDown, ChevronRight, 
-  PlusCircle, List, LayoutTemplate // 🔥 LayoutTemplate icon add kiya Banners ke liye
+  PlusCircle, List, LayoutTemplate, Newspaper // 🔥 Newspaper icon add kiya Blogs ke liye
 } from 'lucide-react';
 import { UserButton, useUser, SignOutButton } from "@clerk/nextjs"; 
 import Link from "next/link"; 
@@ -18,10 +18,11 @@ export default function AdminSidebar({
 }) {
   const { user, isLoaded } = useUser();
   
-  // Dropdown open/close state track karne ke liye
+  // 🔥 Blogs dropdown ke liye state update ki
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({
     businesses: false,
     categories: false,
+    blogs: false, 
   });
 
   const toggleMenu = (menu: string) => {
@@ -51,7 +52,7 @@ export default function AdminSidebar({
           <span>Dashboard Overview</span>
         </button>
 
-             {/* 🔥 NEW: Banner Settings Link 🔥 */}
+        {/* Banners Settings Link */}
         <div className="pt-1">
           <button
             onClick={() => setActiveSection('banners')}
@@ -126,6 +127,37 @@ export default function AdminSidebar({
           )}
         </div>
 
+        {/* 📰 🔥 NEW: Blogs Dropdown 🔥 */}
+        <div className="pt-1">
+          <button
+            onClick={() => toggleMenu('blogs')}
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-all duration-200 font-semibold text-sm text-slate-500 hover:bg-slate-50 hover:text-slate-800`}
+          >
+            <div className="flex items-center gap-3">
+              <Newspaper className={`w-5 h-5 ${openMenus.blogs ? 'text-blue-500' : ''}`} />
+              <span>Blogs & Articles</span>
+            </div>
+            {openMenus.blogs ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+          </button>
+          
+          {openMenus.blogs && (
+            <div className="mt-1 space-y-1 pl-11 pr-2 animate-in slide-in-from-top-2 duration-200">
+              <button
+                onClick={() => setActiveSection('blogs')}
+                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${activeSection === 'blogs' ? 'bg-blue-50 text-blue-600' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50'}`}
+              >
+                <List className="w-4 h-4" /> All Blogs
+              </button>
+              <button
+                onClick={() => setActiveSection('add-blog')}
+                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${activeSection === 'add-blog' ? 'bg-blue-50 text-blue-600' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50'}`}
+              >
+                <PlusCircle className="w-4 h-4" /> Add Blog
+              </button>
+            </div>
+          )}
+        </div>
+
         {/* ⭐ Reviews Link */}
         <div className="pt-2">
           <button
@@ -139,11 +171,9 @@ export default function AdminSidebar({
           </button>
         </div>
 
-   
-
       </nav>
 
-      {/* 🔥 Bottom Action Section 🔥 */}
+      {/* Bottom Action Section */}
       <div className="p-4 border-t border-slate-100 mt-auto bg-slate-50/50 flex flex-col gap-1.5">
         
         <Link 
