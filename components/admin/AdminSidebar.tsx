@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { 
   LayoutDashboard, Building2, Layers, Star, 
   Home, LogOut, ChevronDown, ChevronRight, 
-  PlusCircle, List 
+  PlusCircle, List, LayoutTemplate // 🔥 LayoutTemplate icon add kiya Banners ke liye
 } from 'lucide-react';
 import { UserButton, useUser, SignOutButton } from "@clerk/nextjs"; 
 import Link from "next/link"; 
@@ -50,6 +50,19 @@ export default function AdminSidebar({
           <LayoutDashboard className="w-5 h-5" />
           <span>Dashboard Overview</span>
         </button>
+
+             {/* 🔥 NEW: Banner Settings Link 🔥 */}
+        <div className="pt-1">
+          <button
+            onClick={() => setActiveSection('banners')}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 font-semibold text-sm
+              ${activeSection === 'banners' ? 'bg-blue-50 text-blue-600' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800'}
+            `}
+          >
+            <LayoutTemplate className="w-5 h-5" />
+            <span>Banners & Layout</span>
+          </button>
+        </div>
 
         {/* 🏢 Businesses Dropdown */}
         <div className="pt-2">
@@ -125,6 +138,9 @@ export default function AdminSidebar({
             <span>Ratings & Reviews</span>
           </button>
         </div>
+
+   
+
       </nav>
 
       {/* 🔥 Bottom Action Section 🔥 */}

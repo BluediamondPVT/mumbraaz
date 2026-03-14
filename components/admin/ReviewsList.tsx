@@ -104,10 +104,12 @@ export default function ReviewsList() {
                 </div>
               </div>
 
-              <div className="mb-3">
-                <p className="text-sm font-medium text-gray-700 mb-1">Business: {review.business.name}</p>
-                <p className="text-gray-700">{review.comment}</p>
-              </div>
+             <div className="mb-3">
+  <p className="text-sm font-medium text-gray-700 mb-1">
+    Business: {review.business?.name || <span className="text-red-500 italic">Deleted Business</span>}
+  </p>
+  <p className="text-gray-700">{review.comment}</p>
+</div>
 
               <p className="text-xs text-gray-500">
                 {new Date(review.createdAt).toLocaleDateString()} -{' '}

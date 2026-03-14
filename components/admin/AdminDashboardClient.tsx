@@ -9,15 +9,16 @@ import CategoryList from "@/components/admin/CategoryList";
 import ReviewsList from "@/components/admin/ReviewsList";
 import CategoryForm from "@/components/admin/CategoryForm";
 import BusinessForm from "@/components/admin/BusinessForm";
+import BannerSettings from './BannerSettings';
 
 export default function AdminDashboardClient() {
-  // 🔥 Ab naye tabs track honge yahan
   const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     const hash = window.location.hash.substring(1);
-    if (['businesses', 'categories', 'reviews', 'add-business', 'add-category'].includes(hash)) {
+    // 🔥 FIX: Yahan array mein 'banners' allow kiya hai 🔥
+    if (['businesses', 'categories', 'reviews', 'add-business', 'add-category', 'banners'].includes(hash)) {
        setActiveTab(hash);
     } else {
        setActiveTab('dashboard');
@@ -65,14 +66,14 @@ export default function AdminDashboardClient() {
               </div>
             )}
 
-            {/* 2. 🔥 YAHAN DIKHEGA TERA ADD BUSINESS FORM 🔥 */}
+            {/* 2. ADD BUSINESS FORM */}
             {activeTab === 'add-business' && (
               <div className="animate-in fade-in duration-300 max-w-5xl mx-auto">
                 <BusinessForm />
               </div>
             )}
 
-            {/* 3. 🔥 YAHAN DIKHEGA TERA ADD CATEGORY FORM 🔥 */}
+            {/* 3. ADD CATEGORY FORM */}
             {activeTab === 'add-category' && (
               <div className="animate-in fade-in duration-300 max-w-3xl mx-auto">
                 <CategoryForm />
@@ -97,6 +98,13 @@ export default function AdminDashboardClient() {
             {activeTab === 'reviews' && (
               <div className="space-y-6 animate-in fade-in duration-300">
                 <ReviewsList />
+              </div>
+            )}
+
+            {/* 7. Banner Settings */}
+            {activeTab === 'banners' && (
+              <div className="space-y-6 animate-in fade-in duration-300">
+                <BannerSettings />
               </div>
             )}
 

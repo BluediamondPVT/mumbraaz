@@ -2,58 +2,73 @@ import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
 import { currentUser } from "@clerk/nextjs/server";
 import { MapPin, LayoutDashboard } from "lucide-react";
-import NavSearchBar from "@/components/layout/NavSearchBar"; // 🔥 Naya Import
+import NavSearchBar from "@/components/layout/NavSearchBar"; // Tera search bar
 
 export default async function Navbar() {
   const user = await currentUser();
   const isAdmin = user?.publicMetadata?.role === "admin";
 
   return (
-    <nav className="bg-gradient-to-r from-red-400 to-red-500 sticky top-0 z-50 shadow-md">
-      <div className="px-4 sm:px-6 lg:px-8">
-        {/* Top Row: Logo and User Actions */}
-        <div className="flex justify-between items-center h-16">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="bg-blue-600 p-2 rounded-lg text-white">
-              <MapPin className="w-5 h-5" />
-            </div>
-            <span className="text-2xl font-bold text-white tracking-tight">
-              Mumbra <span className="text-yellow-200">BiZ</span>
-            </span>
-          </Link>
+    <nav className="bg-gradient-to-r from-red-500 to-red-600 sticky top-0 z-50 shadow-lg">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* 🔥 FLEX-WRAP MAGIC: Desktop pe 1 Row, Mobile pe 2 Rows ekdum slim 🔥 */}
+        <div className="flex flex-wrap items-center justify-between py-3 gap-y-3 md:h-20 md:py-0">
+          
+          {/* 1. LOGO (Hamesha Left) - Order 1 */}
+          <div className="flex-shrink-0 order-1">
+            <Link href="/" className="flex items-center gap-2 group">
+              <div className="bg-white p-2 rounded-xl text-red-500 shadow-sm group-hover:scale-105 transition-transform">
+                <MapPin className="w-5 h-5 md:w-6 md:h-6" />
+              </div>
+              <span className="text-xl md:text-3xl  font-extrabold text-white tracking-tight">
+                Mumbra<span className="text-yellow-300">BiZ</span>
+              </span>
+            </Link>
+          </div>
 
-          <div className="flex items-center gap-4">
+          {/* 2. USER ACTIONS / PROFILE (Mobile pe Right, Desktop pe bhi Right) - Order 2 on Mobile, Order 3 on Desktop */}
+          <div className="flex-shrink-0 flex items-center gap-3 order-2 md:order-3">
             {!user ? (
-              <div className="flex items-center gap-3">
-                <Link href="/login" className="text-sm font-medium text-white hover:text-gray-100 transition-colors">
+              <>
+                <Link href="/login" className="text-sm font-bold text-white/90 hover:text-white transition-colors hidden sm:block">
                   Login
                 </Link>
-                <Link href="/register" className="bg-white hover:bg-gray-100 text-red-500 px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
+                <Link href="/register" className="bg-white text-red-600 hover:bg-red-50 px-4 py-2 md:px-5 md:py-2.5 rounded-full text-sm font-bold transition-all shadow-sm hover:shadow">
                   Register
                 </Link>
-              </div>
+              </>
             ) : (
               <div className="flex items-center gap-3">
                 {isAdmin && (
-                  <Link href="/admin" className="flex items-center gap-2 bg-black bg-opacity-20 hover:bg-opacity-30 text-white px-3 py-2 rounded-lg text-sm font-medium transition-all">
+                  <Link 
+                    href="/admin" 
+                    className="flex items-center gap-1.5 bg-black/20 hover:bg-black/30 text-white px-3 py-2 rounded-lg text-sm font-semibold transition-all backdrop-blur-sm"
+                    title="Admin Dashboard"
+                  >
                     <LayoutDashboard className="w-4 h-4" />
                   </Link>
                 )}
-                <UserButton 
-                  appearance={{
-                    elements: { avatarBox: "w-9 h-9 border-2 border-white shadow-sm" }
-                  }}
-                />
+                <div className="">
+                  <UserButton 
+                    appearance={{
+                      elements: { avatarBox: "w-8 h-8 md:w-13 md:h-15 shadow-sm" }
+                    }}
+                  />
+                </div>
               </div>
             )}
           </div>
-        </div>
 
-        {/* 🔥 YAHAN APNA LIVE SEARCH BAR AAYEGA 🔥 */}
-        <div className="flex justify-center">
-          <NavSearchBar />
+          {/* 3. SEARCH BAR (Mobile pe Niche, Desktop pe Center me) - Order 3 on Mobile, Order 2 on Desktop */}
+          <div className="w-full md:w-auto md:flex-1 order-3 md:order-2 md:px-8 lg:px-12 flex justify-center">
+            {/* NavSearchBar ka container ab pura width lega par limit ke sath */}
+            <div className="w-full max-w-2xl">
+              <NavSearchBar />
+            </div>
+          </div>
+
         </div>
-        
       </div>
     </nav>
   );
