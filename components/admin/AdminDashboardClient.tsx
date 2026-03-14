@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Menu } from 'lucide-react';
+import { Menu, Newspaper } from 'lucide-react';
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import AdminStatsCards from "@/components/admin/AdminStatsCards";
 import BusinessList from "@/components/admin/BusinessList";
@@ -10,15 +10,18 @@ import ReviewsList from "@/components/admin/ReviewsList";
 import CategoryForm from "@/components/admin/CategoryForm";
 import BusinessForm from "@/components/admin/BusinessForm";
 import BannerSettings from './BannerSettings';
+import BlogForm from './BlogForm'; 
+import BlogList from './BlogList';
 
 export default function AdminDashboardClient() {
   const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [editingBlogId, setEditingBlogId] = useState<string | null>(null);
 
   useEffect(() => {
     const hash = window.location.hash.substring(1);
-    // 🔥 FIX: Yahan array mein 'banners' allow kiya hai 🔥
-    if (['businesses', 'categories', 'reviews', 'add-business', 'add-category', 'banners'].includes(hash)) {
+    // 🔥 FIX: Yahan array mein 'blogs' aur 'add-blog' bhi allow kiya hai 🔥
+    if (['businesses', 'categories', 'reviews', 'add-business', 'add-category', 'banners', 'blogs', 'add-blog'].includes(hash)) {
        setActiveTab(hash);
     } else {
        setActiveTab('dashboard');
@@ -69,14 +72,14 @@ export default function AdminDashboardClient() {
             {/* 2. ADD BUSINESS FORM */}
             {activeTab === 'add-business' && (
               <div className="animate-in fade-in duration-300 max-w-5xl mx-auto">
-                <BusinessForm />
+                <BusinessForm onSuccess={() => setActiveTab('businesses')} onCancel={() => setActiveTab('dashboard')} />
               </div>
             )}
 
             {/* 3. ADD CATEGORY FORM */}
             {activeTab === 'add-category' && (
               <div className="animate-in fade-in duration-300 max-w-3xl mx-auto">
-                <CategoryForm />
+                <CategoryForm onSuccess={() => setActiveTab('categories')} onCancel={() => setActiveTab('dashboard')} />
               </div>
             )}
 
@@ -105,6 +108,25 @@ export default function AdminDashboardClient() {
             {activeTab === 'banners' && (
               <div className="space-y-6 animate-in fade-in duration-300">
                 <BannerSettings />
+              </div>
+            )}
+
+         {/* 🔥 8. ADD/EDIT BLOG FORM 🔥 */}
+            {activeTab === 'add-blog' && (
+              <div className="animate-in fade-in duration-300 max-w-5xl mx-auto">
+                <BlogForm 
+                  editingId={editingBlogId} 
+                  onSuccess={() => { setActiveTab('blogs'); setEditingBlogId(null); }} 
+                  onCancel={() => { setActiveTab('blogs'); setEditingBlogId(null); }} 
+                />
+              </div>
+            )}
+
+            {/* 🔥 9. BLOGS LIST 🔥 */}
+            {activeTab === 'blogs' && (
+              <div className="space-y-6 animate-in fade-in duration-300">
+                {/* Yahan se Edit dabane par form khulega */}
+                <BlogList onEdit={(id) => { setEditingBlogId(id); setActiveTab('add-blog'); }} />
               </div>
             )}
 
