@@ -1,6 +1,6 @@
 'use client';
 
-import { Building2, Layers, Star, MessageCircle } from 'lucide-react';
+import { Building2, Layers, Star, MessageCircle, Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 export default function AdminStatsCards() {
@@ -15,25 +15,18 @@ export default function AdminStatsCards() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [businessesRes, categoriesRes, reviewsRes] = await Promise.all([
-          fetch('/api/businesses'),
-          fetch('/api/categories'),
-          fetch('/api/reviews'),
-        ]);
-
-        const businesses = (await businessesRes.json()) as any[];
-        const categories = (await categoriesRes.json()) as any[];
-        const reviews = (await reviewsRes.json()) as any[];
-
-        const avgRating = reviews.length > 0
-          ? (reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / reviews.length).toFixed(1)
-          : 0;
-
+        // 🔥 OPTIMIZATION: Poora data fetch karne ki jagah sirf /api/stats call kar rahe hain
+        const res = await fetch('/api/stats');
+        
+        // Agar server se HTML error aaye toh parse hone se pehle rok lo
+        if (!res.ok) throw new Error(`API failed with status ${res.status}`);
+        
+        const data = await res.json();
         setStats({
-          totalBusinesses: businesses.length,
-          totalCategories: categories.length,
-          averageRating: parseFloat(avgRating as string),
-          totalReviews: reviews.length,
+          totalBusinesses: data.totalBusinesses || 0,
+          totalCategories: data.totalCategories || 0,
+          averageRating: data.averageRating || 0,
+          totalReviews: data.totalReviews || 0,
         });
       } catch (error) {
         console.error('Error fetching stats:', error);
@@ -75,6 +68,15 @@ export default function AdminStatsCards() {
       iconColor: 'text-yellow-600',
     },
   ];
+
+  // Jab tak data load ho raha hai, loader dikhao taaki UI jhatka na maare
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center py-12 mb-8">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
