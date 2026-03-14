@@ -5,6 +5,8 @@ import { Business } from "@/lib/models/Business";
 import { User } from "@/lib/models/User";
 import { currentUser } from "@clerk/nextjs/server";
 
+export const dynamic = 'force-dynamic'; // 🔥 Cache hata dega, hamesha live data aayega
+
 export async function GET() {
   try {
     await connectToDatabase();
@@ -13,6 +15,7 @@ export async function GET() {
       .populate('business', 'name')
       .sort({ createdAt: -1 })
       .lean();
+      
     return NextResponse.json(reviews, { status: 200 });
   } catch (error) {
     console.error("Reviews Fetch Error:", error);
@@ -22,21 +25,15 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    // 1. Check karo ki user logged in hai ya nahi
     const clerkUser = await currentUser();
-    if (!clerkUser) {
-      return NextResponse.json({ error: "Review dene ke liye login karna zaroori hai!" }, { status: 401 });
-    }
+    if (!clerkUser) return NextResponse.json({ error: "Login karna zaroori hai!" }, { status: 401 });
 
     await connectToDatabase();
     const body = await req.json();
     const { businessId, rating, comment } = body;
 
-    if (!rating || !comment) {
-      return NextResponse.json({ error: "Rating aur comment dono dena zaroori hai." }, { status: 400 });
-    }
+    if (!rating || !comment) return NextResponse.json({ error: "Rating/comment missing" }, { status: 400 });
 
-    // 2. User ko MongoDB me dhoondo. Agar nahi hai, toh naya bana lo (Webhook bypass trick)
     let dbUser = await User.findOne({ clerkId: clerkUser.id });
     if (!dbUser) {
       dbUser = await User.create({
@@ -46,34 +43,19 @@ export async function POST(req: Request) {
       });
     }
 
-    // 3. Check karo ki is user ne is dukan ko pehle toh review nahi diya?
     const existingReview = await Review.findOne({ user: dbUser._id, business: businessId });
-    if (existingReview) {
-      return NextResponse.json({ error: "Bhai, tum pehle hi review de chuke ho!" }, { status: 400 });
-    }
+    if (existingReview) return NextResponse.json({ error: "Pehle hi review de chuke ho!" }, { status: 400 });
 
-    // 4. Naya Review save karo
-    const newReview = await Review.create({
-      user: dbUser._id,
-      business: businessId,
-      rating: Number(rating),
-      comment: comment,
-    });
+    const newReview = await Review.create({ user: dbUser._id, business: businessId, rating: Number(rating), comment });
 
-    // 5. Dukaan ki Average Rating aur Total Reviews update karo
     const allReviews = await Review.find({ business: businessId });
-    const totalReviews = allReviews.length;
-    // Saari ratings ka total sum nikal ke average nikalna
-    const avgRating = allReviews.reduce((acc, curr) => acc + curr.rating, 0) / totalReviews;
+    const avgRating = allReviews.reduce((acc, curr) => acc + curr.rating, 0) / allReviews.length;
 
-    await Business.findByIdAndUpdate(businessId, {
-      totalReviews: totalReviews,
-      averageRating: avgRating.toFixed(1) // 4.5 jaisa format rakhne ke liye
-    });
+    await Business.findByIdAndUpdate(businessId, { totalReviews: allReviews.length, averageRating: avgRating.toFixed(1) });
 
-    return NextResponse.json({ message: "Review mast add ho gaya!" }, { status: 201 });
+    return NextResponse.json({ message: "Review added!" }, { status: 201 });
   } catch (error) {
-    console.error("Review Error:", error);
-    return NextResponse.json({ error: "Server mein kuch gadbad hui." }, { status: 500 });
+    console.error("Review POST Error:", error);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
