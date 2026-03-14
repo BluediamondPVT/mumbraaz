@@ -9,6 +9,7 @@ import PopularServices from "@/components/home/PopularServices";
 import TravelBookings from "@/components/home/TravelBookings";
 import PopularSearches from "@/components/home/PopularSearches";
 import BlogSlider from "@/components/home/BlogSlider";
+import CategoryLoadingSkeleton from "@/app/(main)/loading"; // Apna correct path daal dena
 
 export const revalidate = 3600; // 1 ghante ke liye ISR cache (Super fast speed ke liye)
 
@@ -125,11 +126,8 @@ async function CategoriesSection() {
 
 export default function HomePage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-white flex items-center justify-center font-semibold text-blue-600">
-        <span aria-live="polite">Loading Categories...</span> {/* Screen readers ke liye loading state */}
-      </div>
-    }>
+    // 🔥 Fallback mein text hata kar apna component laga diya 🔥
+    <Suspense fallback={<CategoryLoadingSkeleton />}>
       <CategoriesSection />
     </Suspense>
   );

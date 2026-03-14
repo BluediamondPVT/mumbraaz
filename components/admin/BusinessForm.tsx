@@ -139,7 +139,7 @@ export default function BusinessForm({ editingId, onSuccess, onCancel }: Busines
             {thumbnailUrl ? (
               <div className="relative w-full aspect-video rounded-xl overflow-hidden group">
                 <Image src={thumbnailUrl} alt="Cover" fill className="object-cover" />
-                <button type="button" onClick={() => setThumbnailUrl("")} className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-lg text-xs font-bold shadow-lg">Remove</button>
+                <button type="button" onClick={() => setThumbnailUrl("")} className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-lg text-xs font-bold shadow-lg z-10 hover:bg-red-600 transition">Remove</button>
               </div>
             ) : (
               <CldUploadWidget uploadPreset="ml_default" onSuccess={(result: any) => setThumbnailUrl(result.info.secure_url)}>
@@ -182,37 +182,85 @@ export default function BusinessForm({ editingId, onSuccess, onCancel }: Busines
         </div>
       </div>
 
-      <div className="mb-6">
+      <div className="mb-8">
         <label className="block text-sm font-bold text-gray-700 mb-1">Description *</label>
         <textarea name="description" required value={formData.description} onChange={handleChange} rows={3} className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none resize-none"></textarea>
       </div>
 
+      {/* 🔥 NEW: Gallery Images Upload Section 🔥 */}
+      <div className="mb-8 p-5 bg-gray-50 rounded-2xl border border-gray-200">
+        <div className="flex justify-between items-center mb-4">
+          <div>
+            <label className="block text-sm font-bold text-gray-700">Gallery & Menu Images</label>
+            <p className="text-xs text-gray-500 mt-0.5">Upload additional photos for this business.</p>
+          </div>
+          <CldUploadWidget 
+            uploadPreset="ml_default" 
+            options={{ multiple: true }} // Allows selecting multiple images if Cloudinary setup permits
+            onSuccess={(result: any) => {
+              setGalleryUrls((prev) => [...prev, result.info.secure_url]);
+            }}
+          >
+            {({ open }) => (
+              <button type="button" onClick={() => open()} className="bg-blue-100 text-blue-700 hover:bg-blue-200 px-4 py-2 rounded-lg text-sm font-bold transition-colors flex items-center gap-2">
+                <ImagePlus className="w-4 h-4" /> Add Images
+              </button>
+            )}
+          </CldUploadWidget>
+        </div>
+
+        {galleryUrls.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {galleryUrls.map((url, index) => (
+              <div key={index} className="relative aspect-square rounded-xl overflow-hidden border border-gray-200 group bg-white shadow-sm">
+                <Image src={url} alt={`Gallery Image ${index + 1}`} fill className="object-cover" />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <button 
+                    type="button" 
+                    onClick={() => setGalleryUrls(galleryUrls.filter((_, i) => i !== index))}
+                    className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-transform transform hover:scale-110 shadow-lg"
+                    title="Remove Image"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="p-8 border-2 border-dashed border-gray-300 bg-white rounded-xl flex flex-col items-center justify-center text-gray-400">
+            <ImagePlus className="w-10 h-10 mb-2 text-gray-300" />
+            <p className="text-sm font-medium">No gallery images added yet.</p>
+          </div>
+        )}
+      </div>
+
       {/* Contact & Location Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 bg-gray-50 p-4 rounded-xl">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 bg-gray-50 p-5 rounded-2xl border border-gray-200">
             <div>
-              <label className="text-sm font-bold text-gray-700 mb-1 flex items-center gap-1"><Phone className="w-4 h-4"/> Phone *</label>
-              <input type="text" name="phone" required value={formData.phone} onChange={handleChange} className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg outline-none" />
+              <label className="text-sm font-bold text-gray-700 mb-1 flex items-center gap-1"><Phone className="w-4 h-4 text-blue-500"/> Phone *</label>
+              <input type="text" name="phone" required value={formData.phone} onChange={handleChange} className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
             <div>
-              <label className="text-sm font-bold text-gray-700 mb-1 flex items-center gap-1"><MessageCircle className="w-4 h-4"/> WhatsApp</label>
-              <input type="text" name="whatsapp" value={formData.whatsapp} onChange={handleChange} className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg outline-none" />
+              <label className="text-sm font-bold text-gray-700 mb-1 flex items-center gap-1"><MessageCircle className="w-4 h-4 text-green-500"/> WhatsApp</label>
+              <input type="text" name="whatsapp" value={formData.whatsapp} onChange={handleChange} className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
             <div className="md:col-span-2">
-              <label className="text-sm font-bold text-gray-700 mb-1 flex items-center gap-1"><MapPin className="w-4 h-4"/> Address *</label>
-              <input type="text" name="address" required value={formData.address} onChange={handleChange} className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg outline-none" />
+              <label className="text-sm font-bold text-gray-700 mb-1 flex items-center gap-1"><MapPin className="w-4 h-4 text-red-500"/> Address *</label>
+              <input type="text" name="address" required value={formData.address} onChange={handleChange} className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-1">City *</label>
-              <input type="text" name="city" required value={formData.city} onChange={handleChange} className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg outline-none" />
+              <input type="text" name="city" required value={formData.city} onChange={handleChange} className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-1">Pincode *</label>
-              <input type="text" name="pincode" required value={formData.pincode} onChange={handleChange} className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg outline-none" />
+              <input type="text" name="pincode" required value={formData.pincode} onChange={handleChange} className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
       </div>
 
       <div className="flex justify-end">
-          <button type="submit" disabled={loading} className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 shadow-md">
+          <button type="submit" disabled={loading} className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 shadow-md transition-all hover:-translate-y-0.5">
             {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle2 className="w-5 h-5" />}
             {loading ? "Saving..." : editingId ? "Update Business" : "Publish Business"}
           </button>
