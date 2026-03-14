@@ -142,7 +142,11 @@ export default function BusinessForm({ editingId, onSuccess, onCancel }: Busines
                 <button type="button" onClick={() => setThumbnailUrl("")} className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-lg text-xs font-bold shadow-lg z-10 hover:bg-red-600 transition">Remove</button>
               </div>
             ) : (
-              <CldUploadWidget uploadPreset="ml_default" onSuccess={(result: any) => setThumbnailUrl(result.info.secure_url)}>
+              <CldUploadWidget 
+                uploadPreset="ml_default" 
+                options={{ format: 'webp' }} 
+                onSuccess={(result: any) => setThumbnailUrl(result.info.secure_url)}
+              >
                 {({ open }) => (
                   <button type="button" onClick={() => open()} className="flex flex-col items-center text-gray-500 hover:text-blue-600 w-full">
                     <ImagePlus className="w-8 h-8 mb-2" />
@@ -187,7 +191,7 @@ export default function BusinessForm({ editingId, onSuccess, onCancel }: Busines
         <textarea name="description" required value={formData.description} onChange={handleChange} rows={3} className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none resize-none"></textarea>
       </div>
 
-      {/* 🔥 NEW: Gallery Images Upload Section 🔥 */}
+      {/* Gallery Images Upload Section */}
       <div className="mb-8 p-5 bg-gray-50 rounded-2xl border border-gray-200">
         <div className="flex justify-between items-center mb-4">
           <div>
@@ -196,7 +200,7 @@ export default function BusinessForm({ editingId, onSuccess, onCancel }: Busines
           </div>
           <CldUploadWidget 
             uploadPreset="ml_default" 
-            options={{ multiple: true }} // Allows selecting multiple images if Cloudinary setup permits
+            options={{ multiple: true, format: 'webp' }} 
             onSuccess={(result: any) => {
               setGalleryUrls((prev) => [...prev, result.info.secure_url]);
             }}
