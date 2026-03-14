@@ -24,7 +24,6 @@ export default function BusinessForm({ editingId, onSuccess, onCancel }: Busines
     name: "", description: "", categoryId: "", phone: "", whatsapp: "", address: "", city: "Thane", pincode: "", status: "approved"
   });
 
-  // Load Categories & Existing Business Data (if editing)
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -91,7 +90,7 @@ export default function BusinessForm({ editingId, onSuccess, onCancel }: Busines
           setThumbnailUrl(""); 
           setGalleryUrls([]);
         }
-        onSuccess?.(); // Modal close karne ke liye
+        onSuccess?.(); 
       } else {
         toast.error(data.error || "Failed to save");
       }
@@ -132,7 +131,6 @@ export default function BusinessForm({ editingId, onSuccess, onCancel }: Busines
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        {/* Cover Image Upload */}
         <div className="space-y-3">
           <label className="block text-sm font-bold text-gray-700">Cover Photo *</label>
           <div className="p-4 border-2 border-dashed border-gray-200 rounded-2xl bg-gray-50 flex items-center justify-center min-h-[180px]">
@@ -144,7 +142,6 @@ export default function BusinessForm({ editingId, onSuccess, onCancel }: Busines
             ) : (
               <CldUploadWidget 
                 uploadPreset="ml_default" 
-                options={{ format: 'webp' }} 
                 onSuccess={(result: any) => setThumbnailUrl(result.info.secure_url)}
               >
                 {({ open }) => (
@@ -158,7 +155,6 @@ export default function BusinessForm({ editingId, onSuccess, onCancel }: Busines
           </div>
         </div>
 
-        {/* Details */}
         <div className="space-y-4">
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-1">Business Name *</label>
@@ -191,7 +187,6 @@ export default function BusinessForm({ editingId, onSuccess, onCancel }: Busines
         <textarea name="description" required value={formData.description} onChange={handleChange} rows={3} className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none resize-none"></textarea>
       </div>
 
-      {/* Gallery Images Upload Section */}
       <div className="mb-8 p-5 bg-gray-50 rounded-2xl border border-gray-200">
         <div className="flex justify-between items-center mb-4">
           <div>
@@ -200,7 +195,7 @@ export default function BusinessForm({ editingId, onSuccess, onCancel }: Busines
           </div>
           <CldUploadWidget 
             uploadPreset="ml_default" 
-            options={{ multiple: true, format: 'webp' }} 
+            options={{ multiple: true }} 
             onSuccess={(result: any) => {
               setGalleryUrls((prev) => [...prev, result.info.secure_url]);
             }}
@@ -239,7 +234,6 @@ export default function BusinessForm({ editingId, onSuccess, onCancel }: Busines
         )}
       </div>
 
-      {/* Contact & Location Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 bg-gray-50 p-5 rounded-2xl border border-gray-200">
             <div>
               <label className="text-sm font-bold text-gray-700 mb-1 flex items-center gap-1"><Phone className="w-4 h-4 text-blue-500"/> Phone *</label>
