@@ -65,7 +65,7 @@ async function CategoriesSection() {
       {/* Banner Section */}
       <section className="w-full px-4 sm:px-6 lg:px-8 pt-6">
         <div className="max-w-7xl mx-auto">
-          <div className="hidden md:grid grid-cols-3 gap-4 h-[250px] lg:h-[300px]">
+          <div className="hidden md:grid grid-cols-3 gap-4 h-[250px] lg:h-[250px]">
             {[desktop1, desktop2, desktop3].map((src, i) => (
               <div key={i} className="relative w-full h-full rounded-xl overflow-hidden shadow-md bg-gray-100">
                 <Image src={src} alt={`Banner ${i+1}`} fill priority className="object-cover hover:scale-105 transition-transform duration-500" />
