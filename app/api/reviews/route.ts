@@ -7,15 +7,30 @@ import { currentUser } from "@clerk/nextjs/server";
 
 export const dynamic = 'force-dynamic'; // 🔥 Cache hata dega, hamesha live data aayega
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
     await connectToDatabase();
-    const reviews = await Review.find({})
+
+    // 🔥 URL se check karo ki kisi specific business ke reviews maange hain kya
+    const { searchParams } = new URL(req.url);
+    const businessId = searchParams.get("businessId");
+
+    // Agar businessId hai toh sirf uske lao, warna saare lao (Admin ke liye)
+    const query = businessId ? { business: businessId } : {};
+
+    const reviewsRaw = await Review.find(query)
       .populate('user', 'name email')
       .populate('business', 'name')
       .sort({ createdAt: -1 })
       .lean();
       
+    // Frontend component ke liye data ko thoda format kar dete hain
+    const reviews = reviewsRaw.map((review: any) => ({
+      ...review,
+      userName: review.user?.name || "Anonymous User", // User ka naam nikal liya
+      businessName: review.business?.name || "Unknown Business"
+    }));
+
     return NextResponse.json(reviews, { status: 200 });
   } catch (error) {
     console.error("Reviews Fetch Error:", error);
